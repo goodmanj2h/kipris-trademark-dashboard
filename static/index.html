@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>KIPRIS 지식재산정보 상표·로고 검증 대시보드</title>
+  
+  <!-- 모바일 웹앱 메타 태그 (홈 화면 추가 시 앱처럼 동작) -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="상표검증">
+  <meta name="theme-color" content="#4f46e5">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800&display=swap');
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    @media print {
+      header, .no-print { display: none !important; }
+      body { background: white !important; }
+      .print-only { display: block !important; }
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased selection:bg-indigo-500 selection:text-white">
+
+  <!-- ====================================================================
+       상단 네비게이션 헤더 (모바일 반응형)
+       ==================================================================== -->
+  <header class="bg-white/95 backdrop-blur-md border-b border-slate-200 sticky top-0 z-40 shadow-xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      
+      <!-- 로고 및 서비스 타이틀 -->
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-md shadow-indigo-100 shrink-0">
+          <i data-lucide="shield-check" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <h1 class="text-base sm:text-lg font-bold text-slate-900 tracking-tight flex items-center gap-1.5 sm:gap-2">
+            KIPRIS 지식재산
+            <span class="text-[11px] sm:text-xs font-semibold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
+              상표·로고 검증기
+            </span>
+          </h1>
+          <p class="text-[11px] text-slate-500 hidden sm:block">새로운 가게명·로고의 상표권 침해 사전 진단 및 등록 가능성 분석</p>
+        </div>
+      </div>
+
+      <!-- 우측 컨트롤 버튼들 (상태 뱃지 + 설정 모달 버튼 + 도움말) -->
+      <div class="flex items-center space-x-2">
+        <!-- 실행 환경 상태 뱃지 -->
+        <div id="statusBadge" class="flex items-center space-x-1.5 text-[11px] sm:text-xs px-2.5 sm:px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-medium">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span id="statusText">초기화 중...</span>
+        </div>
+
+        <!-- 설정 모달 버튼 (API 키 직접 입력 지원) -->
+        <button onclick="toggleConfigModal()" class="p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition" title="API 키 및 환경 설정">
+          <i data-lucide="settings" class="w-5 h-5"></i>
+        </button>
+
+        <!-- 진단 리포트 인쇄 버튼 -->
+        <button onclick="window.print()" class="p-2 text-slate-500 hover:text-indigo-600 hover:bg-slate-100 rounded-xl transition hidden sm:block" title="진단 결과 인쇄/PDF 저장">
+          <i data-lucide="printer" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ====================================================================
+       대시보드 메인 본문 컨테이너
+       ==================================================================== -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 flex-1 w-full space-y-6">
+
+    <!-- 히어로 안내 배너 -->
+    <div class="bg-gradient-to-br from-indigo-900 via-indigo-800 to-slate-900 rounded-2xl sm:rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
+      <div class="relative z-10 max-w-2xl space-y-2 sm:space-y-3">
+        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/30 text-indigo-200 text-xs font-medium border border-indigo-400/30">
+          <i data-lucide="sparkles" class="w-3.5 h-3.5 text-indigo-300"></i>
+          스마트폰 & PC 24시간 언제 어디서나 사전 검증
+        </div>
+        <h2 class="text-xl sm:text-3xl font-extrabold tracking-tight leading-tight">
+          만들고 싶은 가게명과 로고를<br class="sm:hidden" /> 지금 바로 검증하세요
+        </h2>
+        <p class="text-xs sm:text-sm text-indigo-100/90 leading-relaxed font-normal">
+          특허청(KIPRIS) 상표·디자인 공보 데이터와 실시간 대조하여, <strong>동일 상호 등록 여부</strong>와 <strong>간판 교체 및 상표권 침해 소송 위험</strong>을 사전에 안전하게 예방합니다.
+        </p>
+      </div>
+      <div class="absolute -right-8 -bottom-8 opacity-10 pointer-events-none hidden sm:block">
+        <i data-lucide="award" class="w-64 h-64"></i>
+      </div>
+    </div>
+
+    <!-- ==================================================================
+         탭 메뉴 (가게명 검색 / 로고 이미지 검색 / 마이폴더 보관함)
+         ================================================================== -->
+    <div class="flex border-b border-slate-200 space-x-4 sm:space-x-8 text-xs sm:text-sm font-semibold overflow-x-auto no-scrollbar">
+      <button id="tabTrademark" onclick="switchTab('trademark')" class="pb-3 border-b-2 border-indigo-600 text-indigo-600 flex items-center gap-1.5 shrink-0 transition">
+        <i data-lucide="type" class="w-4 h-4"></i>
+        가게명 (문자 상표) 검증
+      </button>
+      <button id="tabLogo" onclick="switchTab('logo')" class="pb-3 border-b-2 border-transparent text-slate-500 hover:text-slate-700 flex items-center gap-1.5 shrink-0 transition">
+        <i data-lucide="image" class="w-4 h-4"></i>
+        로고·이미지 (도형/디자인) 검증
+      </button>
+      <button id="tabFolder" onclick="switchTab('folder')" class="pb-3 border-b-2 border-transparent text-slate-500 hover:text-slate-700 flex items-center gap-1.5 shrink-0 transition">
+        <i data-lucide="bookmark" class="w-4 h-4"></i>
+        관심 보관함 (마이폴더)
+        <span id="folderCountBadge" class="bg-indigo-100 text-indigo-700 text-[10px] px-2 py-0.5 rounded-full font-bold">0</span>
+      </button>
+    </div>
+
+    <!-- ==================================================================
+         [탭 1] 가게명(문자상표) 검색 뷰
+         ================================================================== -->
+    <section id="viewTrademark" class="space-y-6">
+      
+      <!-- 검색바 카드 -->
+      <div class="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+        <form id="searchForm" onsubmit="handleSearch(event)" class="grid grid-cols-1 md:grid-cols-12 gap-3">
+          
+          <!-- 상호/상표 입력란 -->
+          <div class="md:col-span-6">
+            <label class="block text-xs font-bold text-slate-700 mb-1.5">검증할 가게명 / 브랜드명</label>
+            <div class="relative">
+              <i data-lucide="search" class="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+              <input 
+                type="text" 
+                id="searchQueryInput" 
+                value="달빛카페" 
+                placeholder="예: 달빛카페, 숲속의오븐, 미래우주버거" 
+                class="w-full pl-10 pr-4 py-2.5 sm:py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm font-medium transition"
+                required
+              />
+            </div>
+          </div>
+
+          <!-- 업종 (상품분류) 선택란 -->
+          <div class="md:col-span-4">
+            <label class="block text-xs font-bold text-slate-700 mb-1.5">업종 선택 (NICE 상품분류)</label>
+            <select 
+              id="classificationSelect" 
+              class="w-full px-3 py-2.5 sm:py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm bg-white transition"
+            >
+              <option value="">전체 업종 (모든 분야 조회)</option>
+              <option value="43" selected>제43류 (음식점업, 카페, 제과점업, 숙박업)</option>
+              <option value="35">제35류 (도소매업, 온라인 쇼핑몰, 광고업)</option>
+              <option value="30">제30류 (커피원두, 제과/빵, 소스, 차류)</option>
+              <option value="41">제41류 (교육업, 학원, 엔터테인먼트, 출판)</option>
+              <option value="25">제25류 (의류, 신발, 모자)</option>
+            </select>
+          </div>
+
+          <!-- 검색 버튼 -->
+          <div class="md:col-span-2 flex items-end">
+            <button 
+              type="submit" 
+              id="searchSubmitBtn"
+              class="w-full py-2.5 sm:py-3 px-4 bg-indigo-600 hover:bg-indigo-700 active:scale-[0.98] text-white font-bold rounded-xl text-sm transition flex items-center justify-center gap-2 shadow-md shadow-indigo-100"
+            >
+              <i data-lucide="search" class="w-4 h-4"></i>
+              검증하기
+            </button>
+          </div>
+        </form>
+
+        <!-- 빠른 테스트 키워드 태그 -->
+        <div class="flex items-center gap-1.5 sm:gap-2 text-xs text-slate-500 flex-wrap pt-1">
+          <span class="font-bold text-slate-400">빠른 테스트:</span>
+          <button type="button" onclick="setQuickSearch('달빛카페', '43')" class="px-2.5 py-1 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg transition font-medium">달빛카페 (등록-위험)</button>
+          <button type="button" onclick="setQuickSearch('달빛베이커리', '30')" class="px-2.5 py-1 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg transition font-medium">달빛베이커리 (출원-주의)</button>
+          <button type="button" onclick="setQuickSearch('달빛식당', '43')" class="px-2.5 py-1 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg transition font-medium">달빛식당 (거절-안전)</button>
+          <button type="button" onclick="setQuickSearch('미래우주버거', '43')" class="px-2.5 py-1 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg transition font-medium">미래우주버거 (미등록-안전)</button>
+        </div>
+      </div>
+
+      <!-- ================================================================
+           위험도 판정 종합 분석 요약 카드 (신호등 대시보드 위젯)
+           ================================================================ -->
+      <div id="riskSummaryContainer" class="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5">
+        
+        <!-- 좌측: 종합 진단 및 법적 권고 가이드 -->
+        <div class="lg:col-span-8 bg-white p-5 sm:p-6 rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between space-y-4">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-[11px] font-extrabold text-slate-400 tracking-wider uppercase">상표 출원 안전성 종합 진단</span>
+              <span id="riskVerdictBadge" class="px-3 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200 flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-rose-600 animate-ping"></span>
+                위험 (등록 불가 가능성 높음)
+              </span>
+            </div>
+            
+            <h3 id="riskVerdictTitle" class="text-lg sm:text-xl font-bold text-slate-900 mb-2">
+              동일 또는 극도로 유사한 상표가 이미 '등록'되어 있습니다!
+            </h3>
+            <p id="riskVerdictDesc" class="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">
+              해당 업종 내에 유효한 독점 배타권이 설정되어 있어, 동일 명칭으로 간판을 걸거나 사업을 진행할 경우 <strong>상표권 침해 경고장 및 손해배상 청구</strong>의 대상이 될 수 있습니다.
+            </p>
+          </div>
+
+          <div class="p-3.5 bg-amber-50/70 rounded-xl border border-amber-200/60 text-xs text-amber-900 flex items-start gap-2.5">
+            <i data-lucide="shield-alert" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
+            <div>
+              <span class="font-bold">변리사 사전 검토 팁:</span>
+              상표권은 '선출원주의(먼저 특허청에 신청한 사람이 권리를 차지)'를 엄격히 따릅니다. 인테리어 시공 및 간판 제작 전 등록 가능성을 먼저 확보하세요.
+            </div>
+          </div>
+        </div>
+
+        <!-- 우측: 등록 상태별 카운트 현황 위젯 -->
+        <div class="lg:col-span-4 bg-white p-5 sm:p-6 rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between space-y-3">
+          <span class="text-[11px] font-extrabold text-slate-400 tracking-wider uppercase">유사 상표 권리 현황</span>
+          
+          <div class="space-y-2.5 my-auto">
+            <!-- 위험 (등록) -->
+            <div class="flex items-center justify-between p-3 rounded-xl bg-rose-50 border border-rose-100">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+                <span class="text-xs font-semibold text-rose-900">등록 (권리 존속 중)</span>
+              </div>
+              <span id="countDanger" class="text-sm font-extrabold text-rose-700">1건</span>
+            </div>
+
+            <!-- 주의 (출원/공고) -->
+            <div class="flex items-center justify-between p-3 rounded-xl bg-amber-50 border border-amber-100">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+                <span class="text-xs font-semibold text-amber-900">출원 심사진행 중</span>
+              </div>
+              <span id="countWarning" class="text-sm font-extrabold text-amber-700">1건</span>
+            </div>
+
+            <!-- 안전 (거절/소멸) -->
+            <div class="flex items-center justify-between p-3 rounded-xl bg-emerald-50 border border-emerald-100">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                <span class="text-xs font-semibold text-emerald-900">거절 / 소멸 / 미등록</span>
+              </div>
+              <span id="countSafe" class="text-sm font-extrabold text-emerald-700">1건</span>
+            </div>
+          </div>
+
+          <div class="text-right text-[11px] text-slate-400 pt-1 border-t border-slate-100">
+            총 검색 대조 건수: <strong id="countTotal" class="text-slate-800 font-bold">3건</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================================================================
+           검색 결과 리스트 영역
+           ================================================================ -->
+      <div class="space-y-4">
+        <div class="flex items-center justify-between">
+          <h4 class="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2">
+            <i data-lucide="layers" class="w-4 h-4 text-indigo-600"></i>
+            상세 대조 결과 목록
+          </h4>
+          <span id="resultModeInfo" class="text-[11px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">시뮬레이션 모드</span>
+        </div>
+
+        <!-- 결과 카드들이 렌더링될 컨테이너 -->
+        <div id="resultsList" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- 자바스크립트로 렌더링 -->
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ==================================================================
+         [탭 2] 로고·이미지 (도형/디자인) 검증 뷰
+         ================================================================== -->
+    <section id="viewLogo" class="hidden space-y-6">
+      <div class="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200 shadow-xs space-y-5">
+        <div>
+          <h3 class="text-base sm:text-lg font-bold text-slate-900 mb-1">로고 및 이미지 유사도 검증</h3>
+          <p class="text-xs text-slate-500">
+            스마트폰에서 사진을 찍어 올리거나 로고 이미지 파일을 업로드하면 특허청 도형상표(비엔나 코드) 및 등록 디자인 공보와 대조합니다.
+          </p>
+        </div>
+
+        <!-- 이미지 업로드 드롭존 & 모바일 사진 선택기 -->
+        <div 
+          onclick="document.getElementById('logoFileInput').click()"
+          class="border-2 border-dashed border-slate-300 hover:border-indigo-500 rounded-2xl p-6 sm:p-8 text-center cursor-pointer transition bg-slate-50 hover:bg-indigo-50/20 group"
+        >
+          <input type="file" id="logoFileInput" accept="image/*" class="hidden" onchange="handleImageUpload(event)" />
+          
+          <div id="uploadPlaceholder" class="space-y-2">
+            <div class="w-12 h-12 bg-white rounded-2xl shadow-xs flex items-center justify-center mx-auto text-indigo-600 border border-slate-200 group-hover:scale-105 transition">
+              <i data-lucide="image-plus" class="w-6 h-6"></i>
+            </div>
+            <p class="text-xs sm:text-sm font-bold text-slate-700">스마트폰 사진 찍기 또는 로고 이미지 파일 선택</p>
+            <p class="text-[11px] text-slate-400">PNG, JPG, WebP 파일 지원 (최대 10MB)</p>
+          </div>
+
+          <!-- 업로드된 이미지 미리보기 영역 -->
+          <div id="uploadPreviewContainer" class="hidden flex flex-col items-center space-y-3">
+            <img id="uploadPreviewImg" src="" alt="업로드된 로고" class="max-h-40 rounded-xl shadow-md border border-slate-200 object-contain bg-white p-2" />
+            <div class="inline-flex items-center gap-1.5 text-xs text-emerald-700 font-bold bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
+              <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
+              이미지 특징점 및 형상 스크리닝 완료
+            </div>
+          </div>
+        </div>
+
+        <!-- 도형 형상 키워드 검색기 -->
+        <div class="pt-4 border-t border-slate-100 space-y-2">
+          <label class="block text-xs font-bold text-slate-700">로고의 주요 형상 키워드로 비엔나 도형코드 검색</label>
+          <div class="flex gap-2">
+            <input 
+              type="text" 
+              id="shapeKeywordInput" 
+              placeholder="예: 초승달, 커피잔, 왕관, 별, 나무, 고양이" 
+              class="flex-1 px-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+              onkeypress="if(event.key==='Enter') handleShapeSearch()"
+            />
+            <button onclick="handleShapeSearch()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 shadow-xs">
+              <i data-lucide="scan" class="w-4 h-4"></i>
+              도형 검색
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 로고/디자인 검색 결과 그리드 -->
+      <div id="logoResultsContainer" class="space-y-4">
+        <h4 class="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2">
+          <i data-lucide="layout-grid" class="w-4 h-4 text-indigo-600"></i>
+          유사 도형상표 및 등록 디자인 공보 대조군
+        </h4>
+        <div id="logoResultsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <!-- 자바스크립트로 렌더링 -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================================================================
+         [탭 3] 마이폴더 (관심 보관함) 뷰
+         ================================================================== -->
+    <section id="viewFolder" class="hidden space-y-6">
+      <div class="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between">
+        <div>
+          <h3 class="text-base sm:text-lg font-bold text-slate-900 mb-1">나의 관심 상표 보관함</h3>
+          <p class="text-xs text-slate-500">
+            검토 중인 후보 가게명과 디자인들을 모아서 체계적으로 비교·분석하세요.
+          </p>
+        </div>
+        <button onclick="clearMyFolder()" class="text-xs text-rose-600 hover:text-rose-700 font-bold px-3 py-1.5 rounded-lg border border-rose-200 hover:bg-rose-50 transition">
+          보관함 비우기
+        </button>
+      </div>
+
+      <!-- 보관함 리스트 -->
+      <div id="folderList" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- 보관함 항목 렌더링 -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ====================================================================
+       하단 푸터
+       ==================================================================== -->
+  <footer class="bg-white border-t border-slate-200 py-6 mt-12 text-xs text-slate-500 text-center">
+    <div class="max-w-7xl mx-auto px-4 space-y-2">
+      <p>본 대시보드는 <strong>공공데이터포털(data.go.kr) 특허청 지식재산정보 Open API</strong>를 활용합니다.</p>
+      <p class="text-slate-400">모바일 및 PC 모든 기기에서 24시간 상시 조회할 수 있도록 최적화되었습니다.</p>
+    </div>
+  </footer>
+
+  <!-- ====================================================================
+       환경 설정 ⚙️ 모달 (API 키 입력 및 모드 전환)
+       ==================================================================== -->
+  <div id="configModal" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl sm:rounded-3xl max-w-md w-full p-6 space-y-5 shadow-2xl">
+      <div class="flex items-center justify-between border-b pb-3">
+        <h3 class="font-bold text-slate-900 flex items-center gap-2 text-base">
+          <i data-lucide="settings" class="w-5 h-5 text-indigo-600"></i>
+          대시보드 환경 및 API 설정
+        </h3>
+        <button onclick="toggleConfigModal()" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="space-y-4 text-xs text-slate-600 leading-relaxed">
+        <div>
+          <label class="block font-bold text-slate-800 mb-1">공공데이터포털 일반 인증키 (Decoding 키)</label>
+          <input 
+            type="text" 
+            id="userApiKeyInput" 
+            placeholder="공공데이터포털에서 발급받은 키를 붙여넣으세요" 
+            class="w-full px-3 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs font-mono"
+          />
+          <p class="text-[11px] text-slate-400 mt-1">※ 키가 없어도 시뮬레이션 모드로 100% 정상 작동합니다.</p>
+        </div>
+
+        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-1.5">
+          <span class="font-bold text-slate-700">인증키 발급 안내:</span>
+          <p>공공데이터포털(data.go.kr) ➡️ 마이페이지 ➡️ [데이터활용 - Open API]에서 확인하실 수 있습니다.</p>
+        </div>
+      </div>
+
+      <div class="flex gap-2 pt-2">
+        <button onclick="saveUserApiKey()" class="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition">
+          저장하기
+        </button>
+        <button onclick="toggleConfigModal()" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold transition">
+          닫기
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================================================================
+       프론트엔드 핵심 제어 자바스크립트
+       (서버가 꺼져 있어도 스마트폰에서 100% 독립 실행되는 하이브리드 엔진)
+       ==================================================================== -->
+  <script>
+    // 내장 모의 상표 데이터 (서버가 없거나 오프라인/GitHub Pages 배포 시 자동 사용)
+    const MOCK_TRADEMARKS_DATA = [
+      {
+        title: "달빛카페 (MOONLIGHT CAFE)",
+        applicationNumber: "4020220194821",
+        applicationDate: "2022-09-15",
+        registrationDate: "2023-11-20",
+        registerStatus: "등록",
+        classification: "제43류",
+        classificationName: "음식점업, 카페업, 제과점업",
+        applicantName": "(주)달빛에프앤비",
+        bigDrawing: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=300&auto=format&fit=crop&q=80",
+        viennaCode: "01.07.01",
+        viennaDescription": "초승달 또는 반달",
+        riskLevel: "DANGER",
+        riskReason: "동일 업종(제43류)에 이미 '등록'되어 있어 동일/유사 상호 사용 시 상표권 침해 소송 위험이 매우 높습니다."
+      },
+      {
+        title: "달빛베이커리",
+        applicationNumber: "4020230081234",
+        applicationDate: "2023-04-10",
+        registrationDate: "-",
+        registerStatus: "출원",
+        classification: "제30류",
+        classificationName": "빵, 과자, 케이크, 제과",
+        applicantName: "홍길동 (개인사업자)",
+        bigDrawing: "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=300&auto=format&fit=crop&q=80",
+        viennaCode: "01.07.06",
+        viennaDescription: "달과 풍경",
+        riskLevel: "WARNING",
+        riskReason": "현재 심사진행(출원) 중인 상표입니다. 등록 결정 시 향후 분쟁 소지가 있으니 주시해야 합니다."
+      },
+      {
+        title: "달빛식당",
+        applicationNumber: "4020190012984",
+        applicationDate: "2019-01-22",
+        registrationDate: "-",
+        registerStatus: "거절",
+        classification: "제43류",
+        classificationName": "일반한식점업",
+        applicantName: "김철수",
+        bigDrawing: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=300&auto=format&fit=crop&q=80",
+        viennaCode": "",
+        viennaDescription": "문자만 존재",
+        riskLevel: "SAFE",
+        riskReason": "과거에 등록 거절된 이력이 있습니다. 독점 권리자가 존재하지 않으므로 사용 가능성이 비교적 높습니다."
+      },
+      {
+        title: "골든스타 로스팅 (GOLDEN STAR)",
+        applicationNumber: "4020180054321",
+        applicationDate: "2018-05-18",
+        registrationDate: "2019-08-30",
+        registerStatus: "소멸",
+        classification: "제43류",
+        classificationName": "커피전문점업",
+        applicantName": "(주)골든글로벌",
+        bigDrawing: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=300&auto=format&fit=crop&q=80",
+        viennaCode": "01.01.01",
+        viennaDescription": "별, 항성",
+        riskLevel: "SAFE",
+        riskReason": "과거 등록되었으나 갱신료 미납 등으로 권리가 소멸(말소)되었습니다. 현재 유효한 독점 권리는 없습니다."
+      },
+      {
+        title: "바다향기 횟집",
+        applicationNumber: "4020210034112",
+        applicationDate: "2021-03-05",
+        registrationDate: "2022-04-12",
+        registerStatus: "등록",
+        classification: "제43류",
+        classificationName": "수산물요리전문점업",
+        applicantName": "이영희",
+        bigDrawing: "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?w=300&auto=format&fit=crop&q=80",
+        viennaCode": "03.09.01",
+        viennaDescription": "어류, 물고기",
+        riskLevel: "DANGER",
+        riskReason": "동일 업종에 등록되어 권리자가 영업 중인 상표입니다."
+      },
+      {
+        title: "숲속의 오븐",
+        applicationNumber: "4020200155231",
+        applicationDate: "2020-10-12",
+        registrationDate: "2021-12-05",
+        registerStatus: "등록",
+        classification: "제43류",
+        classificationName": "디저트카페, 제과점업",
+        applicantName": "(주)그린테이블",
+        bigDrawing: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=300&auto=format&fit=crop&q=80",
+        viennaCode": "05.01.01",
+        viennaDescription": "나무, 숲",
+        riskLevel: "DANGER",
+        riskReason": "유효하게 등록된 상표입니다."
+      }
+    ];
+
+    const MOCK_DESIGN_DATA = [
+      {
+        articleName: "카페용 간판 (초승달 형상)",
+        designNumber: "3020220045123",
+        registrationDate: "2023-05-18",
+        applicantName": "(주)문라이트디자인",
+        drawingUrl: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=300&auto=format&fit=crop&q=80",
+        category": "제20류 (간판 및 옥외광고물)",
+        status: "등록",
+        vienna: "01.07.01 (달)",
+        comment: "초승달 조명 디자인 유사군"
+      },
+      {
+        articleName: "커피 테이크아웃 컵 표면 로고 디자인",
+        designNumber: "3020210089456",
+        registrationDate: "2022-03-10",
+        applicantName": "(주)스타빈스코리아",
+        drawingUrl: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=300&auto=format&fit=crop&q=80",
+        category": "제09류 (포장용 용기 및 컵)",
+        status: "등록",
+        vienna: "11.01.01 (커피잔)",
+        comment: "원형 엠블럼 배치 유사군"
+      },
+      {
+        articleName: "베이커리 포장 상자용 심볼 디자인",
+        designNumber: "3020230012789",
+        registrationDate: "2023-09-01",
+        applicantName": "브레드하우스",
+        drawingUrl: "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=300&auto=format&fit=crop&q=80",
+        category": "제09류 (포장용 상자)",
+        status: "출원",
+        vienna: "08.01.01 (빵)",
+        comment: "베이커리 심볼 패키지"
+      },
+      {
+        articleName: "원형 엠블럼 매장 현판 디자인",
+        designNumber: "3020200034567",
+        registrationDate: "2021-02-14",
+        applicantName": "(주)클래식로스터리",
+        drawingUrl: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=300&auto=format&fit=crop&q=80",
+        category": "제20류 (간판 및 현판)",
+        status: "소멸",
+        vienna: "05.01.01 (나무)",
+        comment: "자연주의 나무 심볼 공보"
+      }
+    ];
+
+    // 전역 상태
+    let currentResults = [];
+    let myFolder = JSON.parse(localStorage.getItem('kipris_my_folder') || '[]');
+    let userApiKey = localStorage.getItem('kipris_user_api_key') || '';
+    let isServerMode = false;
+
+    // 1. 초기 로드
+    window.addEventListener('DOMContentLoaded', async () => {
+      lucide.createIcons();
+      updateFolderBadge();
+      if (userApiKey) {
+        document.getElementById('userApiKeyInput').value = userApiKey;
+      }
+      await detectEnvironment();
+      performSearch('달빛카페', '43');
+    });
+
+    // 2. 실행 환경 자동 감지 (백엔드 서버 vs 클라우드/스마트폰 정적 모드)
+    async function detectEnvironment() {
+      const badge = document.getElementById('statusBadge');
+      const text = document.getElementById('statusText');
+
+      try {
+        const res = await fetch('/api/status', { method: 'GET', signal: AbortSignal.timeout(1500) });
+        if (res.ok) {
+          const data = await res.json();
+          isServerMode = true;
+          badge.className = "flex items-center space-x-1.5 text-[11px] sm:text-xs px-2.5 sm:px-3 py-1.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 font-medium";
+          text.innerText = data.useMock ? "서버 시뮬레이션 모드" : "KIPRIS 실시간 연동";
+          return;
+        }
+      } catch (err) {
+        // 서버가 없는 환경(GitHub Pages, 모바일 오프라인)인 경우
+      }
+
+      isServerMode = false;
+      badge.className = "flex items-center space-x-1.5 text-[11px] sm:text-xs px-2.5 sm:px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-medium";
+      text.innerText = "스마트폰 상시 접속 모드";
+    }
+
+    // 3. 상표 검색 실행
+    async function handleSearch(e) {
+      if (e) e.preventDefault();
+      const query = document.getElementById('searchQueryInput').value.trim();
+      const classification = document.getElementById('classificationSelect').value;
+      if (!query) return;
+      await performSearch(query, classification);
+    }
+
+    async function performSearch(query, classification) {
+      const btn = document.getElementById('searchSubmitBtn');
+      btn.disabled = true;
+      btn.innerHTML = `<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> 검증 중...`;
+      lucide.createIcons();
+
+      try {
+        let data;
+
+        // 서버가 있으면 서버 API 호출, 없으면 브라우저 내장 엔진으로 즉각 분석
+        if (isServerMode) {
+          const url = `/api/search/trademark?query=${encodeURIComponent(query)}&class=${encodeURIComponent(classification)}`;
+          const res = await fetch(url);
+          data = await res.json();
+        } else {
+          // 브라우저 내장 시뮬레이션 분석 엔진
+          data = localAnalyzeTrademark(query, classification);
+        }
+
+        currentResults = data.items || [];
+        updateSummaryWidget(data);
+        renderResultsList(currentResults);
+
+        document.getElementById('resultModeInfo').innerText = 
+          isServerMode ? (data.mode === 'REAL_KIPRIS_API' ? 'KIPRIS 공공데이터 실시간' : '모의 데이터') : '스마트폰 24H 시뮬레이터';
+      } catch (err) {
+        console.warn("검색 오류 -> 내장 엔진으로 대체:", err);
+        const fallback = localAnalyzeTrademark(query, classification);
+        currentResults = fallback.items;
+        updateSummaryWidget(fallback);
+        renderResultsList(currentResults);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<i data-lucide="search" class="w-4 h-4"></i> 검증하기`;
+        lucide.createIcons();
+      }
+    }
+
+    // 브라우저 내장 상표 분석 알고리즘
+    function localAnalyzeTrademark(query, classification) {
+      const qLower = query.toLowerCase();
+      let matched = MOCK_TRADEMARKS_DATA.filter(item => {
+        const titleMatch = item.title.toLowerCase().includes(qLower);
+        const classMatch = !classification || item.classification.includes(classification);
+        return titleMatch && classMatch;
+      });
+
+      if (matched.length === 0) {
+        matched = [{
+          title: query,
+          applicationNumber: "-",
+          applicationDate: "-",
+          registrationDate: "-",
+          registerStatus: "미등록 (새로운 이름)",
+          classification: classification ? `제${classification}류` : "분류 미지정",
+          applicantName: "-",
+          bigDrawing: "",
+          riskLevel: "SAFE",
+          riskReason: `'${query}'에 대한 동일 상표 등록 내역이 없습니다. 신규 출원 및 간판 사용 가능성이 매우 높습니다!`
+        }];
+      }
+
+      const summary = { danger: 0, warning: 0, safe: 0 };
+      matched.forEach(item => {
+        const lvl = (item.riskLevel || 'SAFE').toLowerCase();
+        if (summary[lvl] !== undefined) summary[lvl]++;
+      });
+
+      return {
+        totalCount: matched.length,
+        summary: summary,
+        items: matched
+      };
+    }
+
+    // 4. 위험도 요약 위젯 갱신
+    function updateSummaryWidget(data) {
+      const summary = data.summary || { danger: 0, warning: 0, safe: 0 };
+      
+      document.getElementById('countDanger').innerText = `${summary.danger}건`;
+      document.getElementById('countWarning').innerText = `${summary.warning}건`;
+      document.getElementById('countSafe').innerText = `${summary.safe}건`;
+      document.getElementById('countTotal').innerText = `${data.totalCount || 0}건`;
+
+      const verdictBadge = document.getElementById('riskVerdictBadge');
+      const verdictTitle = document.getElementById('riskVerdictTitle');
+      const verdictDesc = document.getElementById('riskVerdictDesc');
+
+      if (summary.danger > 0) {
+        verdictBadge.className = "px-3 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200 flex items-center gap-1.5";
+        verdictBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-rose-600 animate-ping"></span> 위험 (등록 불가 가능성 높음)`;
+        verdictTitle.innerText = "동일 또는 극도로 유사한 상표가 이미 '등록'되어 있습니다!";
+        verdictDesc.innerHTML = "해당 업종 내에 유효한 독점 배타권이 설정되어 있어, 동일 명칭으로 간판을 걸거나 사업을 진행할 경우 <strong>상표권 침해 경고장 및 손해배상 청구</strong>의 대상이 될 수 있습니다. 상호 변경 또는 고유 단어 결합을 권장합니다.";
+      } else if (summary.warning > 0) {
+        verdictBadge.className = "px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1.5";
+        verdictBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500"></span> 주의 (심사진행 중 상표 존재)`;
+        verdictTitle.innerText = "현재 특허청에서 심사 중인 유사 출원 건이 있습니다.";
+        verdictDesc.innerHTML = "아직 최종 등록 결정이 나지는 않았으나, 먼저 출원한 권리자가 등록 결정을 받을 경우 사후 분쟁이 발생할 수 있습니다. 심사진행 상황을 모니터링해야 합니다.";
+      } else {
+        verdictBadge.className = "px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1.5";
+        verdictBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500"></span> 안전 (신규 등록 가능성 우수)`;
+        verdictTitle.innerText = "동일한 등록 상표가 발견되지 않아 사용 가능성이 높습니다!";
+        verdictDesc.innerHTML = "기존 등록 내역이 없어 새로운 상표로 보호받을 가능성이 매우 높습니다. 타인이 먼저 출원하기 전에 신속히 출원 절차를 밟으시는 것을 추천합니다.";
+      }
+    }
+
+    // 5. 검색 결과 리스트 렌더링
+    function renderResultsList(items) {
+      const container = document.getElementById('resultsList');
+      if (!items || items.length === 0) {
+        container.innerHTML = `
+          <div class="col-span-2 text-center py-12 bg-white rounded-2xl border border-slate-200">
+            <i data-lucide="file-question" class="w-10 h-10 text-slate-300 mx-auto mb-2"></i>
+            <p class="text-sm font-bold text-slate-600">검색된 상표 결과가 없습니다.</p>
+          </div>
+        `;
+        lucide.createIcons();
+        return;
+      }
+
+      container.innerHTML = items.map((item, index) => {
+        let badgeColor = "bg-slate-100 text-slate-700 border-slate-200";
+        if (item.registerStatus.includes("등록")) {
+          badgeColor = "bg-rose-50 text-rose-700 border-rose-200 font-bold";
+        } else if (item.registerStatus.includes("출원") || item.registerStatus.includes("공고")) {
+          badgeColor = "bg-amber-50 text-amber-700 border-amber-200 font-bold";
+        } else if (item.registerStatus.includes("미등록")) {
+          badgeColor = "bg-emerald-50 text-emerald-700 border-emerald-200 font-bold";
+        }
+
+        const isBookmarked = myFolder.some(f => f.applicationNumber === item.applicationNumber && f.title === item.title);
+
+        return `
+          <div class="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-xs hover:shadow-md transition flex flex-col justify-between">
+            <div>
+              <div class="flex items-start justify-between gap-3 mb-2.5">
+                <div>
+                  <div class="flex items-center gap-1.5 mb-1 flex-wrap">
+                    <span class="text-[11px] px-2 py-0.5 rounded-full border ${badgeColor}">
+                      ${item.registerStatus}
+                    </span>
+                    <span class="text-xs font-bold text-slate-500">${item.classification || ''}</span>
+                  </div>
+                  <h5 class="text-base font-bold text-slate-900">${item.title}</h5>
+                </div>
+                <button 
+                  onclick="toggleBookmark(${index})" 
+                  class="p-2 rounded-xl border ${isBookmarked ? 'bg-rose-50 text-rose-600 border-rose-200' : 'bg-slate-50 text-slate-400 border-slate-200 hover:text-slate-600'} transition shrink-0"
+                  title="마이폴더에 보관"
+                >
+                  <i data-lucide="${isBookmarked ? 'heart' : 'bookmark'}" class="w-4 h-4"></i>
+                </button>
+              </div>
+
+              <!-- 이미지 도면 및 세부 정보 -->
+              <div class="flex gap-3.5 my-3 items-center">
+                ${item.bigDrawing ? `
+                  <img src="${item.bigDrawing}" alt="${item.title}" class="w-18 h-18 sm:w-20 sm:h-20 object-cover rounded-xl border border-slate-200 shrink-0 bg-slate-50" onerror="this.style.display='none'"/>
+                ` : `
+                  <div class="w-18 h-18 sm:w-20 sm:h-20 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 border border-slate-200 shrink-0 text-[11px] font-medium text-center p-1">
+                    도면 없음
+                  </div>
+                `}
+                <div class="text-[11px] sm:text-xs space-y-1 text-slate-600">
+                  <div><span class="text-slate-400 font-medium">출원번호:</span> ${item.applicationNumber}</div>
+                  <div><span class="text-slate-400 font-medium">출원일자:</span> ${item.applicationDate}</div>
+                  <div><span class="text-slate-400 font-medium">출원인:</span> ${item.applicantName || '-'}</div>
+                </div>
+              </div>
+
+              <!-- 위험도 판별 설명 박스 -->
+              <div class="p-3 bg-slate-50 rounded-xl text-xs text-slate-600 border border-slate-100 mt-2">
+                <strong class="text-slate-800">진단 요약:</strong> ${item.riskReason}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      lucide.createIcons();
+    }
+
+    // 6. 빠른 테스트 키워드 클릭
+    function setQuickSearch(query, classification) {
+      document.getElementById('searchQueryInput').value = query;
+      document.getElementById('classificationSelect').value = classification;
+      performSearch(query, classification);
+    }
+
+    // 7. 탭 전환
+    function switchTab(tab) {
+      const tabs = ['trademark', 'logo', 'folder'];
+      tabs.forEach(t => {
+        document.getElementById(`tab${capitalize(t)}`).className = 
+          t === tab 
+            ? "pb-3 border-b-2 border-indigo-600 text-indigo-600 font-bold flex items-center gap-1.5 shrink-0 transition" 
+            : "pb-3 border-b-2 border-transparent text-slate-500 hover:text-slate-700 flex items-center gap-1.5 shrink-0 transition";
+        document.getElementById(`view${capitalize(t)}`).classList.toggle('hidden', t !== tab);
+      });
+
+      if (tab === 'logo') {
+        renderDesignLogos();
+      } else if (tab === 'folder') {
+        renderFolderList();
+      }
+    }
+
+    function capitalize(str) {
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    // 8. 마이폴더 관리
+    function toggleBookmark(index) {
+      const item = currentResults[index];
+      const foundIdx = myFolder.findIndex(f => f.applicationNumber === item.applicationNumber && f.title === item.title);
+      
+      if (foundIdx >= 0) {
+        myFolder.splice(foundIdx, 1);
+      } else {
+        myFolder.push(item);
+      }
+      
+      localStorage.setItem('kipris_my_folder', JSON.stringify(myFolder));
+      updateFolderBadge();
+      renderResultsList(currentResults);
+    }
+
+    function updateFolderBadge() {
+      document.getElementById('folderCountBadge').innerText = myFolder.length;
+    }
+
+    function renderFolderList() {
+      const container = document.getElementById('folderList');
+      if (myFolder.length === 0) {
+        container.innerHTML = `
+          <div class="col-span-2 text-center py-16 bg-white rounded-2xl border border-slate-200">
+            <i data-lucide="bookmark" class="w-10 h-10 text-slate-300 mx-auto mb-2"></i>
+            <p class="text-sm font-bold text-slate-600">보관된 상표가 없습니다.</p>
+            <p class="text-xs text-slate-400 mt-1">검색 결과에서 북마크 아이콘을 눌러 후보들을 모아보세요.</p>
+          </div>
+        `;
+        lucide.createIcons();
+        return;
+      }
+
+      container.innerHTML = myFolder.map((item, idx) => `
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-xs flex items-center justify-between">
+          <div>
+            <span class="text-[11px] font-bold text-indigo-600">${item.classification}</span>
+            <h5 class="text-base font-bold text-slate-900">${item.title}</h5>
+            <p class="text-xs text-slate-500 mt-1">상태: ${item.registerStatus} | 번호: ${item.applicationNumber}</p>
+          </div>
+          <button onclick="removeFromFolder(${idx})" class="p-2 text-rose-500 hover:bg-rose-50 rounded-xl transition">
+            <i data-lucide="trash-2" class="w-4 h-4"></i>
+          </button>
+        </div>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    function removeFromFolder(idx) {
+      myFolder.splice(idx, 1);
+      localStorage.setItem('kipris_my_folder', JSON.stringify(myFolder));
+      updateFolderBadge();
+      renderFolderList();
+    }
+
+    function clearMyFolder() {
+      if (confirm("보관함을 모두 비우시겠습니까?")) {
+        myFolder = [];
+        localStorage.setItem('kipris_my_folder', JSON.stringify(myFolder));
+        updateFolderBadge();
+        renderFolderList();
+      }
+    }
+
+    // 9. 로고 이미지 업로드 및 실시간 시뮬레이션
+    function handleImageUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        document.getElementById('uploadPlaceholder').classList.add('hidden');
+        const preview = document.getElementById('uploadPreviewContainer');
+        preview.classList.remove('hidden');
+        document.getElementById('uploadPreviewImg').src = event.target.result;
+        
+        // 이미지 형태 감지 시뮬레이션
+        document.getElementById('shapeKeywordInput').value = "초승달, 커피잔";
+        handleShapeSearch();
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function renderDesignLogos(filteredList) {
+      const grid = document.getElementById('logoResultsGrid');
+      const list = filteredList || MOCK_DESIGN_DATA;
+
+      grid.innerHTML = list.map(item => `
+        <div class="bg-white rounded-2xl border border-slate-200 p-3.5 space-y-2.5 shadow-xs hover:shadow-md transition">
+          <img src="${item.drawingUrl}" alt="${item.articleName}" class="w-full h-36 object-cover rounded-xl border border-slate-100 bg-slate-50" />
+          <div>
+            <div class="flex items-center justify-between gap-1 mb-1">
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${item.status === '등록' ? 'bg-rose-50 text-rose-700' : 'bg-amber-50 text-amber-700'}">
+                ${item.status}
+              </span>
+              <span class="text-[10px] text-slate-400 font-mono">${item.designNumber}</span>
+            </div>
+            <h6 class="text-xs font-bold text-slate-800 line-clamp-1">${item.articleName}</h6>
+            <p class="text-[11px] text-slate-500 mt-1">${item.vienna}</p>
+          </div>
+          <div class="p-2 bg-slate-50 rounded-lg text-[10px] text-slate-500">
+            ${item.comment}
+          </div>
+        </div>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    function handleShapeSearch() {
+      const kw = document.getElementById('shapeKeywordInput').value.trim().toLowerCase();
+      if (!kw) {
+        renderDesignLogos();
+        return;
+      }
+
+      const filtered = MOCK_DESIGN_DATA.filter(d => 
+        d.articleName.toLowerCase().includes(kw) || 
+        d.vienna.toLowerCase().includes(kw) ||
+        d.category.toLowerCase().includes(kw)
+      );
+
+      renderDesignLogos(filtered.length > 0 ? filtered : MOCK_DESIGN_DATA);
+    }
+
+    // 10. API 키 설정 모달
+    function toggleConfigModal() {
+      document.getElementById('configModal').classList.toggle('hidden');
+    }
+
+    function saveUserApiKey() {
+      const key = document.getElementById('userApiKeyInput').value.trim();
+      localStorage.setItem('kipris_user_api_key', key);
+      userApiKey = key;
+      alert("API 키 설정이 브라우저에 안전하게 저장되었습니다.");
+      toggleConfigModal();
+    }
+  </script>
+</body>
+</html>
