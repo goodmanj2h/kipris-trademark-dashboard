@@ -2,13 +2,13 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>KIPRIS 지식재산정보 상표·로고 검증 대시보드</title>
   
   <!-- 모바일 웹앱 메타 태그 (스마트폰 홈 화면 추가 시 독립 앱으로 동작) -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="상표검증">
+  <meta name="apple-mobile-web-app-title" content="KIPRIS상표">
   <meta name="theme-color" content="#4f46e5">
 
   <!-- Tailwind CSS CDN -->
@@ -22,12 +22,13 @@
       font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
       -webkit-tap-highlight-color: transparent;
     }
-    .custom-scroll::-webkit-scrollbar {
-      height: 6px;
+    /* 가로 스크롤바 숨기기 (모바일 스와이프 UI) */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
     }
-    .custom-scroll::-webkit-scrollbar-thumb {
-      background: #cbd5e1;
-      border-radius: 9999px;
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
     }
     @media print {
       header, .no-print { display: none !important; }
@@ -39,47 +40,46 @@
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased selection:bg-indigo-500 selection:text-white">
 
   <!-- ====================================================================
-       상단 네비게이션 헤더
+       상단 네비게이션 헤더 (모바일 가독성 100% 최적화)
        ==================================================================== -->
   <header class="bg-white/95 backdrop-blur-md border-b border-slate-200 sticky top-0 z-40 shadow-xs">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+    <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between gap-2">
       
-      <!-- 로고 및 서비스 타이틀 -->
-      <div class="flex items-center space-x-3">
-        <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-md shadow-indigo-100 shrink-0">
-          <i data-lucide="shield-check" class="w-6 h-6"></i>
+      <!-- 로고 및 서비스 타이틀 (모바일에서 한줄 유지) -->
+      <div class="flex items-center space-x-2 sm:space-x-3 shrink-0">
+        <div class="w-8 h-8 sm:w-10 sm:h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-md shadow-indigo-100 shrink-0">
+          <i data-lucide="shield-check" class="w-5 h-5 sm:w-6 sm:h-6"></i>
         </div>
-        <div>
-          <h1 class="text-base sm:text-lg font-bold text-slate-900 tracking-tight flex items-center gap-1.5 sm:gap-2">
+        <div class="flex items-center gap-1.5">
+          <h1 class="text-sm sm:text-base font-extrabold text-slate-900 tracking-tight whitespace-nowrap">
             KIPRIS 지식재산
-            <span class="text-[11px] sm:text-xs font-semibold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
-              프랜차이즈 상표 종합 검증기
-            </span>
           </h1>
-          <p class="text-[11px] text-slate-500 hidden sm:block">외식 매장부터 밀키트, 비법 소스, 브랜드 굿즈까지 프랜차이즈 전 영역 사전 진단</p>
+          <span class="text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200 whitespace-nowrap">
+            프랜차이즈 상표검증
+          </span>
         </div>
       </div>
 
-      <!-- 우측 컨트롤 버튼들 (상태 뱃지 + 설정 모달 + 진단서 복사/인쇄) -->
-      <div class="flex items-center space-x-2">
-        <!-- 실행 환경 상태 뱃지 -->
-        <div id="statusBadge" class="flex items-center space-x-1.5 text-[11px] sm:text-xs px-2.5 sm:px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-medium">
-          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          <span id="statusText">초기화 중...</span>
+      <!-- 우측 컨트롤 (상태 뱃지 한줄화 + 버튼들) -->
+      <div class="flex items-center space-x-1.5 shrink-0">
+        <!-- 실행 상태 뱃지 (스마트폰에서 1줄로 컴팩트하게 노출) -->
+        <div id="statusBadge" class="flex items-center space-x-1 text-[11px] px-2 sm:px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold whitespace-nowrap">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span id="statusText">모바일 24H</span>
         </div>
 
-        <!-- 진단서 클립보드 복사 버튼 -->
-        <button onclick="copyDiagnosticReport()" class="p-2 text-slate-500 hover:text-indigo-600 hover:bg-slate-100 rounded-xl transition" title="진단 결과 요약 복사 (카톡/메모장 공유용)">
-          <i data-lucide="share-2" class="w-5 h-5"></i>
+        <!-- 진단서 복사 버튼 -->
+        <button onclick="copyDiagnosticReport()" class="p-1.5 sm:p-2 text-slate-500 hover:text-indigo-600 hover:bg-slate-100 rounded-lg transition" title="진단 결과 요약 복사">
+          <i data-lucide="share-2" class="w-4 h-4 sm:w-5 sm:h-5"></i>
         </button>
 
-        <!-- 설정 모달 버튼 (API 키 직접 입력 지원) -->
-        <button onclick="toggleConfigModal()" class="p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition" title="API 키 및 환경 설정">
-          <i data-lucide="settings" class="w-5 h-5"></i>
+        <!-- 설정 모달 버튼 -->
+        <button onclick="toggleConfigModal()" class="p-1.5 sm:p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition" title="설정">
+          <i data-lucide="settings" class="w-4 h-4 sm:w-5 sm:h-5"></i>
         </button>
 
-        <!-- 진단 리포트 인쇄 버튼 -->
-        <button onclick="window.print()" class="p-2 text-slate-500 hover:text-indigo-600 hover:bg-slate-100 rounded-xl transition hidden sm:block" title="진단 결과 인쇄/PDF 저장">
+        <!-- 인쇄 버튼 (PC 전용) -->
+        <button onclick="window.print()" class="p-2 text-slate-500 hover:text-indigo-600 hover:bg-slate-100 rounded-lg transition hidden md:block" title="진단 결과 인쇄">
           <i data-lucide="printer" class="w-5 h-5"></i>
         </button>
       </div>
@@ -90,110 +90,106 @@
   <!-- ====================================================================
        대시보드 메인 본문 컨테이너
        ==================================================================== -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 flex-1 w-full space-y-6">
+  <main class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 flex-1 w-full space-y-4 sm:space-y-6">
 
-    <!-- 히어로 안내 배너 -->
-    <div class="bg-gradient-to-br from-indigo-900 via-indigo-800 to-slate-900 rounded-2xl sm:rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
-      <div class="relative z-10 max-w-3xl space-y-2 sm:space-y-3">
-        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/30 text-indigo-200 text-xs font-medium border border-indigo-400/30">
-          <i data-lucide="store" class="w-3.5 h-3.5 text-indigo-300"></i>
-          프랜차이즈 창업자를 위한 다중 영역(매장·밀키트·소스·굿즈) 원스톱 상표 검증
+    <!-- 히어로 안내 배너 (모바일 높이 축소 및 가독성 대폭 향상) -->
+    <div class="bg-gradient-to-br from-indigo-900 via-indigo-800 to-slate-900 rounded-2xl p-4 sm:p-7 text-white shadow-lg relative overflow-hidden">
+      <div class="relative z-10 space-y-1.5 sm:space-y-2">
+        <div class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-indigo-500/30 text-indigo-200 text-[10px] sm:text-xs font-medium border border-indigo-400/30">
+          <i data-lucide="store" class="w-3 h-3 text-indigo-300"></i>
+          프랜차이즈 다중 영역(매장·밀키트·소스·굿즈) 원스톱 검증
         </div>
-        <h2 class="text-xl sm:text-3xl font-extrabold tracking-tight leading-tight">
-          단순 매장 오픈을 넘어,<br class="sm:hidden" /> 프랜차이즈 확장성까지 검증하세요
+        <h2 class="text-base sm:text-2xl font-extrabold tracking-tight leading-snug">
+          단순 매장 오픈을 넘어, 프랜차이즈 확장성까지 검증
         </h2>
-        <p class="text-xs sm:text-sm text-indigo-100/90 leading-relaxed font-normal">
-          식당 상호뿐만 아니라 <strong>가맹점 관리(제35류)</strong>, <strong>밀키트 간편식(제29류)</strong>, <strong>비법 소스(제30류)</strong>, <strong>텀블러/굿즈(제21·25류)</strong>의 상표권까지 한 번에 복합 조회하여 완벽한 브랜드 권리망을 구축합니다.
+        <p class="text-[11px] sm:text-xs text-indigo-100/90 leading-relaxed font-normal max-w-2xl">
+          식당 상호(제43류)뿐만 아니라 가맹사업(제35류), 밀키트(제29류), 비법 소스(제30류), 텀블러/굿즈(제21·25류) 상표권을 한 번에 조회합니다.
         </p>
-      </div>
-      <div class="absolute -right-8 -bottom-8 opacity-10 pointer-events-none hidden sm:block">
-        <i data-lucide="award" class="w-64 h-64"></i>
       </div>
     </div>
 
     <!-- ==================================================================
          탭 메뉴 (가게명 검색 / 로고 이미지 검색 / 마이폴더 보관함)
          ================================================================== -->
-    <div class="flex border-b border-slate-200 space-x-4 sm:space-x-8 text-xs sm:text-sm font-semibold overflow-x-auto no-scrollbar">
-      <button id="tabTrademark" onclick="switchTab('trademark')" class="pb-3 border-b-2 border-indigo-600 text-indigo-600 flex items-center gap-1.5 shrink-0 transition">
+    <div class="flex border-b border-slate-200 space-x-3 sm:space-x-6 text-xs sm:text-sm font-bold overflow-x-auto no-scrollbar">
+      <button id="tabTrademark" onclick="switchTab('trademark')" class="pb-2.5 border-b-2 border-indigo-600 text-indigo-600 flex items-center gap-1.5 shrink-0 whitespace-nowrap transition">
         <i data-lucide="type" class="w-4 h-4"></i>
-        가게명·프랜차이즈 확장 종합 검증
+        가게명·프랜차이즈 확장 검증
       </button>
-      <button id="tabLogo" onclick="switchTab('logo')" class="pb-3 border-b-2 border-transparent text-slate-500 hover:text-slate-700 flex items-center gap-1.5 shrink-0 transition">
+      <button id="tabLogo" onclick="switchTab('logo')" class="pb-2.5 border-b-2 border-transparent text-slate-500 hover:text-slate-700 flex items-center gap-1.5 shrink-0 whitespace-nowrap transition">
         <i data-lucide="image" class="w-4 h-4"></i>
-        로고·이미지 (도형/디자인) 검증
+        로고·이미지 (도형/디자인)
       </button>
-      <button id="tabFolder" onclick="switchTab('folder')" class="pb-3 border-b-2 border-transparent text-slate-500 hover:text-slate-700 flex items-center gap-1.5 shrink-0 transition">
+      <button id="tabFolder" onclick="switchTab('folder')" class="pb-2.5 border-b-2 border-transparent text-slate-500 hover:text-slate-700 flex items-center gap-1.5 shrink-0 whitespace-nowrap transition">
         <i data-lucide="bookmark" class="w-4 h-4"></i>
-        관심 보관함 (마이폴더)
-        <span id="folderCountBadge" class="bg-indigo-100 text-indigo-700 text-[10px] px-2 py-0.5 rounded-full font-bold">0</span>
+        관심 보관함
+        <span id="folderCountBadge" class="bg-indigo-100 text-indigo-700 text-[10px] px-1.5 py-0.2 rounded-full font-bold">0</span>
       </button>
     </div>
 
     <!-- ==================================================================
          [탭 1] 가게명 및 프랜차이즈 확장 복합 검증 뷰
          ================================================================== -->
-    <section id="viewTrademark" class="space-y-6">
+    <section id="viewTrademark" class="space-y-4 sm:space-y-5">
       
       <!-- 검색바 및 프랜차이즈 다중 업종 선택 카드 -->
-      <div class="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200 shadow-xs space-y-5">
+      <div class="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
         <form id="searchForm" onsubmit="handleSearch(event)" class="space-y-4">
           
           <!-- 상표명 입력란 & 검색 버튼 -->
-          <div class="grid grid-cols-1 md:grid-cols-12 gap-3">
-            <div class="md:col-span-9">
-              <label class="block text-xs font-bold text-slate-700 mb-1.5">검증할 브랜드명 / 프랜차이즈 가게명</label>
-              <div class="relative">
-                <i data-lucide="search" class="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
-                <input 
-                  type="text" 
-                  id="searchQueryInput" 
-                  value="달빛카페" 
-                  placeholder="예: 달빛카페, 숲속의오븐, 미래우주버거" 
-                  class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm font-semibold transition"
-                  required
-                />
-              </div>
+          <div class="space-y-2.5">
+            <label class="block text-xs font-bold text-slate-700">검증할 브랜드명 / 프랜차이즈 가게명</label>
+            <div class="relative">
+              <i data-lucide="search" class="w-4 h-4 sm:w-5 sm:h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+              <input 
+                type="text" 
+                id="searchQueryInput" 
+                value="달빛카페" 
+                placeholder="예: 달빛카페, 숲속의오븐, 미래우주버거" 
+                class="w-full pl-9 sm:pl-10 pr-4 py-2.5 sm:py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm font-semibold transition"
+                required
+              />
             </div>
 
-            <!-- 검색 실행 버튼 -->
-            <div class="md:col-span-3 flex items-end">
-              <button 
-                type="submit" 
-                id="searchSubmitBtn"
-                class="w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-700 active:scale-[0.98] text-white font-bold rounded-xl text-sm transition flex items-center justify-center gap-2 shadow-md shadow-indigo-100"
-              >
-                <i data-lucide="search" class="w-4 h-4"></i>
-                종합 검증 실행
-              </button>
-            </div>
+            <!-- 모바일 원클릭 검색 버튼 -->
+            <button 
+              type="submit" 
+              id="searchSubmitBtn"
+              class="w-full py-2.5 sm:py-3 px-4 bg-indigo-600 hover:bg-indigo-700 active:scale-[0.98] text-white font-bold rounded-xl text-sm transition flex items-center justify-center gap-2 shadow-md shadow-indigo-100"
+            >
+              <i data-lucide="search" class="w-4 h-4"></i>
+              종합 검증 실행
+            </button>
           </div>
 
           <!-- ============================================================
-               [핵심 신규 기능] 프랜차이즈 확장 영역 멀티 선택기 (Checkable Chips)
+               [모바일 최적화] 프랜차이즈 확장 영역 다중 선택기
                ============================================================ -->
-          <div class="pt-3 border-t border-slate-100 space-y-3">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <label class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                <i data-lucide="layers-3" class="w-4 h-4 text-indigo-600"></i>
-                프랜차이즈 확장 영역 다중 선택 (중복 체크 가능)
-                <span id="selectedClassCount" class="text-[11px] bg-indigo-50 text-indigo-700 font-bold px-2 py-0.5 rounded-full border border-indigo-200">
-                  선택: 4개 영역
-                </span>
-              </label>
-
-              <!-- 원클릭 프리셋 버튼들 -->
-              <div class="flex items-center gap-1.5 flex-wrap text-xs">
-                <span class="text-[11px] text-slate-400 font-medium">원클릭 추천:</span>
-                <button type="button" onclick="applyClassPreset('franchise_all')" class="px-2 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg font-bold text-[11px] transition">프랜차이즈 풀 패키지</button>
-                <button type="button" onclick="applyClassPreset('mealkit_sauce')" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-medium text-[11px] transition">밀키트+소스 집중</button>
-                <button type="button" onclick="applyClassPreset('goods_only')" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-medium text-[11px] transition">브랜드 굿즈</button>
-                <button type="button" onclick="applyClassPreset('all')" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-medium text-[11px] transition">전체 선택</button>
-                <button type="button" onclick="applyClassPreset('clear')" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg font-medium text-[11px] transition">초기화</button>
+          <div class="pt-3 border-t border-slate-100 space-y-2.5">
+            
+            <!-- 타이틀 및 선택 개수 뱃지 (스마트폰 한줄 정렬 보장) -->
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center gap-1.5 text-xs font-bold text-slate-800 whitespace-nowrap">
+                <i data-lucide="layers-3" class="w-3.5 h-3.5 text-indigo-600 shrink-0"></i>
+                <span>사업 확장 영역 다중 선택</span>
               </div>
+              <span id="selectedClassCount" class="text-[11px] bg-indigo-50 text-indigo-700 font-extrabold px-2.5 py-0.5 rounded-full border border-indigo-200 whitespace-nowrap shrink-0">
+                4개 선택됨
+              </span>
             </div>
 
-            <!-- 다중 선택 칩 그리드 -->
+            <!-- 원클릭 추천 프리셋 (모바일 가로 스크롤 스와이프 UI) -->
+            <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
+              <span class="text-[10px] text-slate-400 font-bold whitespace-nowrap shrink-0">추천조합:</span>
+              <button type="button" onclick="applyClassPreset('franchise_all')" class="px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg font-bold text-[11px] whitespace-nowrap shrink-0 transition">프랜차이즈 풀 패키지</button>
+              <button type="button" onclick="applyClassPreset('mealkit_sauce')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-medium text-[11px] whitespace-nowrap shrink-0 transition">밀키트+소스</button>
+              <button type="button" onclick="applyClassPreset('goods_only')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-medium text-[11px] whitespace-nowrap shrink-0 transition">브랜드 굿즈</button>
+              <button type="button" onclick="applyClassPreset('all')" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg font-medium text-[11px] whitespace-nowrap shrink-0 transition">전체</button>
+              <button type="button" onclick="applyClassPreset('clear')" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg font-medium text-[11px] whitespace-nowrap shrink-0 transition">초기화</button>
+            </div>
+
+            <!-- [가독성 100% 개선] 업종 선택 카드 그리드 -->
+            <!-- 모바일에서 텍스트 말줄임(...) 없이 상하 2단 구조로 시원하게 배치 -->
             <div id="classChipsContainer" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 pt-1">
               <!-- 자바스크립트로 렌더링 -->
             </div>
@@ -202,36 +198,36 @@
         </form>
 
         <!-- 빠른 테스트 키워드 태그 -->
-        <div class="flex items-center gap-1.5 sm:gap-2 text-xs text-slate-500 flex-wrap pt-2 border-t border-slate-100">
-          <span class="font-bold text-slate-400">빠른 테스트 추천:</span>
-          <button type="button" onclick="setQuickSearch('달빛카페', ['43', '35', '29', '30'])" class="px-2.5 py-1 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg transition font-medium">달빛카페 (매장·가맹 위험 / 밀키트 안전)</button>
-          <button type="button" onclick="setQuickSearch('달빛베이커리', ['43', '30', '21'])" class="px-2.5 py-1 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg transition font-medium">달빛베이커리 (소스 출원심사 중)</button>
-          <button type="button" onclick="setQuickSearch('달빛식당', ['43', '29', '35'])" class="px-2.5 py-1 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg transition font-medium">달빛식당 (거절 이력-안전)</button>
-          <button type="button" onclick="setQuickSearch('미래우주버거', ['43', '35', '29', '30', '21'])" class="px-2.5 py-1 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg transition font-medium">미래우주버거 (전 영역 미등록-완전 안전)</button>
+        <div class="flex items-center gap-1.5 text-xs text-slate-500 overflow-x-auto no-scrollbar pt-2 border-t border-slate-100">
+          <span class="text-[10px] font-bold text-slate-400 whitespace-nowrap shrink-0">빠른 테스트:</span>
+          <button type="button" onclick="setQuickSearch('달빛카페', ['43', '35', '29', '30'])" class="px-2 py-1 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg transition font-medium text-[11px] whitespace-nowrap shrink-0">달빛카페 (매장·가맹 위험 / 밀키트 안전)</button>
+          <button type="button" onclick="setQuickSearch('달빛베이커리', ['43', '30', '21'])" class="px-2 py-1 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg transition font-medium text-[11px] whitespace-nowrap shrink-0">달빛베이커리 (소스 출원심사 중)</button>
+          <button type="button" onclick="setQuickSearch('달빛식당', ['43', '29', '35'])" class="px-2 py-1 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg transition font-medium text-[11px] whitespace-nowrap shrink-0">달빛식당 (거절 이력-안전)</button>
+          <button type="button" onclick="setQuickSearch('미래우주버거', ['43', '35', '29', '30', '21'])" class="px-2 py-1 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg transition font-medium text-[11px] whitespace-nowrap shrink-0">미래우주버거 (전 영역 미등록-완전 안전)</button>
         </div>
       </div>
 
       <!-- ================================================================
-           [신규 핵심 위젯] 프랜차이즈 확장 영역별 종합 안전도 매트릭스
+           [핵심 위젯] 프랜차이즈 확장 영역별 종합 안전도 매트릭스
            ================================================================ -->
-      <div id="franchiseMatrixSection" class="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+      <div id="franchiseMatrixSection" class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs space-y-3">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 border-b border-slate-100 pb-2.5">
           <div>
-            <h4 class="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2">
+            <h4 class="text-xs sm:text-sm font-bold text-slate-900 flex items-center gap-1.5">
               <i data-lucide="network" class="w-4 h-4 text-indigo-600"></i>
-              프랜차이즈 확장 영역별 안전성 진단 매트릭스
+              프랜차이즈 확장 영역별 안전도 매트릭스
             </h4>
-            <p class="text-xs text-slate-500 mt-0.5">선택하신 사업 확장 영역별로 상표권 선점 가능 여부를 한눈에 진단합니다.</p>
+            <p class="text-[10px] sm:text-xs text-slate-500">선택한 사업 분야별 상표권 선점 가능 여부</p>
           </div>
-          <div class="flex items-center gap-3 text-xs">
-            <span class="inline-flex items-center gap-1 text-rose-700 font-bold"><span class="w-2 h-2 rounded-full bg-rose-500"></span>위험 (침해)</span>
-            <span class="inline-flex items-center gap-1 text-amber-700 font-bold"><span class="w-2 h-2 rounded-full bg-amber-500"></span>주의 (심사진행)</span>
-            <span class="inline-flex items-center gap-1 text-emerald-700 font-bold"><span class="w-2 h-2 rounded-full bg-emerald-500"></span>안전 (선점가능)</span>
+          <div class="flex items-center gap-2.5 text-[10px] font-bold">
+            <span class="inline-flex items-center gap-1 text-rose-700"><span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>위험(침해)</span>
+            <span class="inline-flex items-center gap-1 text-amber-700"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>주의(심사진행)</span>
+            <span class="inline-flex items-center gap-1 text-emerald-700"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>안전(선점가능)</span>
           </div>
         </div>
 
         <!-- 매트릭스 카드 그리드 -->
-        <div id="franchiseMatrixGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div id="franchiseMatrixGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
           <!-- 자바스크립트로 동적 생성 -->
         </div>
       </div>
@@ -239,70 +235,70 @@
       <!-- ================================================================
            위험도 판정 종합 분석 요약 카드 (신호등 대시보드 위젯)
            ================================================================ -->
-      <div id="riskSummaryContainer" class="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5">
+      <div id="riskSummaryContainer" class="grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-4">
         
         <!-- 좌측: 종합 진단 및 법적 권고 가이드 -->
-        <div class="lg:col-span-8 bg-white p-5 sm:p-6 rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between space-y-4">
+        <div class="lg:col-span-8 bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between space-y-3">
           <div>
-            <div class="flex items-center justify-between mb-3">
-              <span class="text-[11px] font-extrabold text-slate-400 tracking-wider uppercase">상표 출원 안전성 종합 진단</span>
-              <span id="riskVerdictBadge" class="px-3 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200 flex items-center gap-1.5">
-                <span class="w-2 h-2 rounded-full bg-rose-600 animate-ping"></span>
-                위험 (등록 불가 가능성 높음)
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-[10px] font-extrabold text-slate-400 tracking-wider uppercase">상표 안전성 종합 진단</span>
+              <span id="riskVerdictBadge" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-50 text-rose-700 border border-rose-200 flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-rose-600 animate-ping"></span>
+                일부 영역 등록 존재
               </span>
             </div>
             
-            <h3 id="riskVerdictTitle" class="text-lg sm:text-xl font-bold text-slate-900 mb-2">
-              동일 또는 유사한 등록 상표가 존재합니다!
+            <h3 id="riskVerdictTitle" class="text-sm sm:text-base font-bold text-slate-900 mb-1.5">
+              선택하신 사업 영역 중 이미 등록된 동일 상표가 존재합니다!
             </h3>
-            <p id="riskVerdictDesc" class="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">
-              해당 업종 내에 유효한 독점 배타권이 설정되어 있어, 동일 명칭으로 간판을 걸거나 사업을 진행할 경우 <strong>상표권 침해 경고장 및 손해배상 청구</strong>의 대상이 될 수 있습니다.
+            <p id="riskVerdictDesc" class="text-[11px] sm:text-xs text-slate-600 leading-relaxed font-normal">
+              위의 '확장 매트릭스'에서 빨간색으로 표시된 영역은 타인의 독점 권리가 있으므로, 해당 영역에 대한 브랜드명을 분리하거나 전면 수정을 권장합니다.
             </p>
           </div>
 
-          <div class="p-3.5 bg-amber-50/70 rounded-xl border border-amber-200/60 text-xs text-amber-900 flex items-start gap-2.5">
+          <div class="p-3 bg-amber-50/70 rounded-xl border border-amber-200/60 text-[11px] text-amber-900 flex items-start gap-2">
             <i data-lucide="shield-alert" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
             <div>
               <span class="font-bold">프랜차이즈 본사 설립 팁:</span>
-              외식 매장(제43류)만 등록하고 가맹사업(제35류)이나 밀키트(제29류)를 누락하면, 제3자가 해당 권리를 가로채 가맹점 납품이 전면 중단되는 분쟁이 빈번합니다. 다중 분류 동시 출원이 필수적입니다.
+              외식 매장(제43류)만 등록하고 가맹사업(제35류)이나 밀키트(제29류)를 누락하면, 제3자가 해당 권리를 가로채 가맹점 납품이 중단되는 분쟁이 빈번합니다. 다중 분류 동시 출원이 필수적입니다.
             </div>
           </div>
         </div>
 
         <!-- 우측: 등록 상태별 카운트 현황 위젯 -->
-        <div class="lg:col-span-4 bg-white p-5 sm:p-6 rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between space-y-3">
-          <span class="text-[11px] font-extrabold text-slate-400 tracking-wider uppercase">유사 상표 권리 현황</span>
+        <div class="lg:col-span-4 bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between space-y-2.5">
+          <span class="text-[10px] font-extrabold text-slate-400 tracking-wider uppercase">유사 상표 권리 현황</span>
           
-          <div class="space-y-2.5 my-auto">
+          <div class="space-y-2 my-auto">
             <!-- 위험 (등록) -->
-            <div class="flex items-center justify-between p-3 rounded-xl bg-rose-50 border border-rose-100">
+            <div class="flex items-center justify-between p-2.5 rounded-xl bg-rose-50 border border-rose-100">
               <div class="flex items-center gap-2">
-                <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
-                <span class="text-xs font-semibold text-rose-900">등록 (권리 존속 중)</span>
+                <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+                <span class="text-[11px] font-semibold text-rose-900">등록 (권리 존속 중)</span>
               </div>
-              <span id="countDanger" class="text-sm font-extrabold text-rose-700">1건</span>
+              <span id="countDanger" class="text-xs font-extrabold text-rose-700">1건</span>
             </div>
 
             <!-- 주의 (출원/공고) -->
-            <div class="flex items-center justify-between p-3 rounded-xl bg-amber-50 border border-amber-100">
+            <div class="flex items-center justify-between p-2.5 rounded-xl bg-amber-50 border border-amber-100">
               <div class="flex items-center gap-2">
-                <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
-                <span class="text-xs font-semibold text-amber-900">출원 심사진행 중</span>
+                <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                <span class="text-[11px] font-semibold text-amber-900">출원 심사진행 중</span>
               </div>
-              <span id="countWarning" class="text-sm font-extrabold text-amber-700">1건</span>
+              <span id="countWarning" class="text-xs font-extrabold text-amber-700">1건</span>
             </div>
 
             <!-- 안전 (거절/소멸/미등록) -->
-            <div class="flex items-center justify-between p-3 rounded-xl bg-emerald-50 border border-emerald-100">
+            <div class="flex items-center justify-between p-2.5 rounded-xl bg-emerald-50 border border-emerald-100">
               <div class="flex items-center gap-2">
-                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-                <span class="text-xs font-semibold text-emerald-900">거절 / 소멸 / 신규영역</span>
+                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                <span class="text-[11px] font-semibold text-emerald-900">거절 / 소멸 / 신규영역</span>
               </div>
-              <span id="countSafe" class="text-sm font-extrabold text-emerald-700">1건</span>
+              <span id="countSafe" class="text-xs font-extrabold text-emerald-700">1건</span>
             </div>
           </div>
 
-          <div class="text-right text-[11px] text-slate-400 pt-1 border-t border-slate-100">
+          <div class="text-right text-[10px] text-slate-400 pt-1 border-t border-slate-100">
             총 검색 대조 건수: <strong id="countTotal" class="text-slate-800 font-bold">3건</strong>
           </div>
         </div>
@@ -311,17 +307,17 @@
       <!-- ================================================================
            검색 결과 리스트 영역
            ================================================================ -->
-      <div class="space-y-4">
+      <div class="space-y-3">
         <div class="flex items-center justify-between">
-          <h4 class="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2">
+          <h4 class="text-xs sm:text-sm font-bold text-slate-900 flex items-center gap-1.5">
             <i data-lucide="layers" class="w-4 h-4 text-indigo-600"></i>
             상세 대조 결과 목록
           </h4>
-          <span id="resultModeInfo" class="text-[11px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">시뮬레이션 모드</span>
+          <span id="resultModeInfo" class="text-[10px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">시뮬레이션 모드</span>
         </div>
 
         <!-- 결과 카드들이 렌더링될 컨테이너 -->
-        <div id="resultsList" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div id="resultsList" class="grid grid-cols-1 md:grid-cols-2 gap-3">
           <!-- 자바스크립트로 렌더링 -->
         </div>
       </div>
@@ -331,66 +327,66 @@
     <!-- ==================================================================
          [탭 2] 로고·이미지 (도형/디자인) 검증 뷰
          ================================================================== -->
-    <section id="viewLogo" class="hidden space-y-6">
-      <div class="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200 shadow-xs space-y-5">
+    <section id="viewLogo" class="hidden space-y-4">
+      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
         <div>
-          <h3 class="text-base sm:text-lg font-bold text-slate-900 mb-1">로고 및 이미지 유사도 검증</h3>
-          <p class="text-xs text-slate-500">
-            스마트폰에서 사진을 찍어 올리거나 로고 이미지 파일을 업로드하면 특허청 도형상표(비엔나 코드) 및 등록 디자인 공보와 대조합니다.
+          <h3 class="text-sm sm:text-base font-bold text-slate-900 mb-0.5">로고 및 이미지 유사도 검증</h3>
+          <p class="text-[11px] text-slate-500">
+            스마트폰 카메라로 찍은 로고를 업로드하면 특허청 도형상표(비엔나 코드) 및 등록 디자인 공보와 대조합니다.
           </p>
         </div>
 
         <!-- 이미지 업로드 드롭존 & 모바일 사진 선택기 -->
         <div 
           onclick="document.getElementById('logoFileInput').click()"
-          class="border-2 border-dashed border-slate-300 hover:border-indigo-500 rounded-2xl p-6 sm:p-8 text-center cursor-pointer transition bg-slate-50 hover:bg-indigo-50/20 group"
+          class="border-2 border-dashed border-slate-300 hover:border-indigo-500 rounded-2xl p-5 sm:p-7 text-center cursor-pointer transition bg-slate-50 hover:bg-indigo-50/20 group"
         >
           <input type="file" id="logoFileInput" accept="image/*" class="hidden" onchange="handleImageUpload(event)" />
           
-          <div id="uploadPlaceholder" class="space-y-2">
-            <div class="w-12 h-12 bg-white rounded-2xl shadow-xs flex items-center justify-center mx-auto text-indigo-600 border border-slate-200 group-hover:scale-105 transition">
-              <i data-lucide="image-plus" class="w-6 h-6"></i>
+          <div id="uploadPlaceholder" class="space-y-1.5">
+            <div class="w-10 h-10 bg-white rounded-xl shadow-xs flex items-center justify-center mx-auto text-indigo-600 border border-slate-200 group-hover:scale-105 transition">
+              <i data-lucide="image-plus" class="w-5 h-5"></i>
             </div>
-            <p class="text-xs sm:text-sm font-bold text-slate-700">스마트폰 사진 찍기 또는 로고 이미지 파일 선택</p>
-            <p class="text-[11px] text-slate-400">간판, 포장용기, 텀블러 각인 로고 PNG, JPG 지원</p>
+            <p class="text-xs font-bold text-slate-700">스마트폰 사진 찍기 또는 로고 이미지 파일 선택</p>
+            <p class="text-[10px] text-slate-400">간판, 포장용기, 텀블러 각인 로고 PNG, JPG 지원</p>
           </div>
 
           <!-- 업로드된 이미지 미리보기 영역 -->
-          <div id="uploadPreviewContainer" class="hidden flex flex-col items-center space-y-3">
-            <img id="uploadPreviewImg" src="" alt="업로드된 로고" class="max-h-40 rounded-xl shadow-md border border-slate-200 object-contain bg-white p-2" />
-            <div class="inline-flex items-center gap-1.5 text-xs text-emerald-700 font-bold bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
-              <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
+          <div id="uploadPreviewContainer" class="hidden flex flex-col items-center space-y-2">
+            <img id="uploadPreviewImg" src="" alt="업로드된 로고" class="max-h-36 rounded-xl shadow-md border border-slate-200 object-contain bg-white p-2" />
+            <div class="inline-flex items-center gap-1 text-[11px] text-emerald-700 font-bold bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+              <i data-lucide="check-circle" class="w-3 h-3"></i>
               이미지 특징점 및 형상 스크리닝 완료
             </div>
           </div>
         </div>
 
         <!-- 도형 형상 키워드 검색기 -->
-        <div class="pt-4 border-t border-slate-100 space-y-2">
+        <div class="pt-3 border-t border-slate-100 space-y-1.5">
           <label class="block text-xs font-bold text-slate-700">로고의 주요 형상 키워드로 비엔나 도형코드 검색</label>
           <div class="flex gap-2">
             <input 
               type="text" 
               id="shapeKeywordInput" 
               placeholder="예: 초승달, 커피잔, 왕관, 별, 나무, 고양이" 
-              class="flex-1 px-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+              class="flex-1 px-3.5 py-2 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
               onkeypress="if(event.key==='Enter') handleShapeSearch()"
             />
-            <button onclick="handleShapeSearch()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 shadow-xs">
-              <i data-lucide="scan" class="w-4 h-4"></i>
-              도형 검색
+            <button onclick="handleShapeSearch()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs transition flex items-center gap-1 shadow-xs">
+              <i data-lucide="scan" class="w-3.5 h-3.5"></i>
+              검색
             </button>
           </div>
         </div>
       </div>
 
       <!-- 로고/디자인 검색 결과 그리드 -->
-      <div id="logoResultsContainer" class="space-y-4">
-        <h4 class="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2">
+      <div id="logoResultsContainer" class="space-y-3">
+        <h4 class="text-xs sm:text-sm font-bold text-slate-900 flex items-center gap-1.5">
           <i data-lucide="layout-grid" class="w-4 h-4 text-indigo-600"></i>
           유사 도형상표 및 등록 디자인 공보 대조군
         </h4>
-        <div id="logoResultsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div id="logoResultsGrid" class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           <!-- 자바스크립트로 렌더링 -->
         </div>
       </div>
@@ -399,27 +395,27 @@
     <!-- ==================================================================
          [탭 3] 마이폴더 (관심 보관함) 뷰 & 비교 분석표
          ================================================================== -->
-    <section id="viewFolder" class="hidden space-y-6">
-      <div class="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+    <section id="viewFolder" class="hidden space-y-4">
+      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
         <div>
-          <h3 class="text-base sm:text-lg font-bold text-slate-900 mb-1">나의 관심 상표 보관함</h3>
-          <p class="text-xs text-slate-500">
+          <h3 class="text-sm sm:text-base font-bold text-slate-900 mb-0.5">나의 관심 상표 보관함</h3>
+          <p class="text-[11px] text-slate-500">
             검토 중인 후보 가게명들을 담아두고 한눈에 나란히 비교 분석하세요.
           </p>
         </div>
         <div class="flex items-center gap-2">
-          <button onclick="toggleCompareModal()" class="text-xs text-indigo-600 hover:text-indigo-700 font-bold px-3 py-1.5 rounded-lg border border-indigo-200 bg-indigo-50/50 hover:bg-indigo-100 transition flex items-center gap-1.5">
-            <i data-lucide="columns-2" class="w-4 h-4"></i>
-            후보 상표 비교 분석표
+          <button onclick="toggleCompareModal()" class="text-xs text-indigo-600 hover:text-indigo-700 font-bold px-3 py-1.5 rounded-lg border border-indigo-200 bg-indigo-50/50 hover:bg-indigo-100 transition flex items-center gap-1">
+            <i data-lucide="columns-2" class="w-3.5 h-3.5"></i>
+            후보 비교 분석표
           </button>
-          <button onclick="clearMyFolder()" class="text-xs text-rose-600 hover:text-rose-700 font-bold px-3 py-1.5 rounded-lg border border-rose-200 hover:bg-rose-50 transition">
-            보관함 비우기
+          <button onclick="clearMyFolder()" class="text-xs text-rose-600 hover:text-rose-700 font-bold px-2.5 py-1.5 rounded-lg border border-rose-200 hover:bg-rose-50 transition">
+            비우기
           </button>
         </div>
       </div>
 
       <!-- 보관함 리스트 -->
-      <div id="folderList" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div id="folderList" class="grid grid-cols-1 md:grid-cols-2 gap-3">
         <!-- 보관함 항목 렌더링 -->
       </div>
     </section>
@@ -429,20 +425,20 @@
   <!-- ====================================================================
        하단 푸터
        ==================================================================== -->
-  <footer class="bg-white border-t border-slate-200 py-6 mt-12 text-xs text-slate-500 text-center">
-    <div class="max-w-7xl mx-auto px-4 space-y-2">
-      <p>본 대시보드는 <strong>공공데이터포털(data.go.kr) 특허청 지식재산정보 Open API</strong>를 활용합니다.</p>
-      <p class="text-slate-400">프랜차이즈 창업자를 위해 외식, 가맹관리, 밀키트, 소스, 굿즈 다중 분류를 지원합니다.</p>
+  <footer class="bg-white border-t border-slate-200 py-4 text-[11px] text-slate-400 text-center">
+    <div class="max-w-7xl mx-auto px-4 space-y-1">
+      <p>공공데이터포털(data.go.kr) 특허청 지식재산정보 Open API 연동</p>
+      <p>모바일 및 PC 모든 화면 완벽 최적화</p>
     </div>
   </footer>
 
   <!-- ====================================================================
        상세 공보 팝업 모달
        ==================================================================== -->
-  <div id="detailModal" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl sm:rounded-3xl max-w-lg w-full p-6 space-y-4 shadow-2xl overflow-y-auto max-h-[90vh]">
-      <div class="flex items-center justify-between border-b pb-3">
-        <h3 id="modalTitle" class="font-bold text-slate-900 text-base flex items-center gap-2">
+  <div id="detailModal" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-3">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-5 space-y-3 shadow-2xl overflow-y-auto max-h-[85vh]">
+      <div class="flex items-center justify-between border-b pb-2.5">
+        <h3 id="modalTitle" class="font-bold text-slate-900 text-sm sm:text-base flex items-center gap-2">
           상표 상세 정보
         </h3>
         <button onclick="toggleDetailModal()" class="text-slate-400 hover:text-slate-600">
@@ -450,11 +446,11 @@
         </button>
       </div>
 
-      <div id="modalBody" class="space-y-4 text-xs text-slate-600 leading-relaxed">
+      <div id="modalBody" class="space-y-3 text-xs text-slate-600 leading-relaxed">
         <!-- 자바스크립트로 렌더링 -->
       </div>
 
-      <div class="pt-2">
+      <div class="pt-1">
         <button onclick="toggleDetailModal()" class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition">
           닫기
         </button>
@@ -465,11 +461,11 @@
   <!-- ====================================================================
        후보 상표 비교 분석 모달
        ==================================================================== -->
-  <div id="compareModal" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl sm:rounded-3xl max-w-3xl w-full p-6 space-y-4 shadow-2xl overflow-y-auto max-h-[90vh]">
-      <div class="flex items-center justify-between border-b pb-3">
-        <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
-          <i data-lucide="columns-2" class="w-5 h-5 text-indigo-600"></i>
+  <div id="compareModal" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-3">
+    <div class="bg-white rounded-2xl max-w-2xl w-full p-5 space-y-3 shadow-2xl overflow-y-auto max-h-[85vh]">
+      <div class="flex items-center justify-between border-b pb-2.5">
+        <h3 class="font-bold text-slate-900 text-sm sm:text-base flex items-center gap-1.5">
+          <i data-lucide="columns-2" class="w-4 h-4 text-indigo-600"></i>
           후보 가게명 비교 분석표
         </h3>
         <button onclick="toggleCompareModal()" class="text-slate-400 hover:text-slate-600">
@@ -478,10 +474,10 @@
       </div>
 
       <div id="compareBody" class="overflow-x-auto">
-        <!-- 자바스크립트로 비교 테이블 생성 -->
+        <!-- 비교 테이블 -->
       </div>
 
-      <div class="pt-2">
+      <div class="pt-1">
         <button onclick="toggleCompareModal()" class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition">
           닫기
         </button>
@@ -492,11 +488,11 @@
   <!-- ====================================================================
        환경 설정 ⚙️ 모달 (API 키 입력 및 모드 전환)
        ==================================================================== -->
-  <div id="configModal" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl sm:rounded-3xl max-w-md w-full p-6 space-y-5 shadow-2xl">
-      <div class="flex items-center justify-between border-b pb-3">
-        <h3 class="font-bold text-slate-900 flex items-center gap-2 text-base">
-          <i data-lucide="settings" class="w-5 h-5 text-indigo-600"></i>
+  <div id="configModal" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-3">
+    <div class="bg-white rounded-2xl max-w-md w-full p-5 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between border-b pb-2.5">
+        <h3 class="font-bold text-slate-900 flex items-center gap-1.5 text-sm sm:text-base">
+          <i data-lucide="settings" class="w-4 h-4 text-indigo-600"></i>
           대시보드 환경 및 API 설정
         </h3>
         <button onclick="toggleConfigModal()" class="text-slate-400 hover:text-slate-600">
@@ -504,29 +500,29 @@
         </button>
       </div>
 
-      <div class="space-y-4 text-xs text-slate-600 leading-relaxed">
+      <div class="space-y-3 text-xs text-slate-600 leading-relaxed">
         <div>
           <label class="block font-bold text-slate-800 mb-1">공공데이터포털 일반 인증키 (Decoding 키)</label>
           <input 
             type="text" 
             id="userApiKeyInput" 
-            placeholder="공공데이터포털에서 발급받은 키를 붙여넣으세요" 
-            class="w-full px-3 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs font-mono"
+            placeholder="공공데이터포털에서 발급받은 키 입력" 
+            class="w-full px-3 py-2 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs font-mono"
           />
-          <p class="text-[11px] text-slate-400 mt-1">※ 키가 없어도 시뮬레이션 모드로 100% 정상 작동합니다.</p>
+          <p class="text-[10px] text-slate-400 mt-1">※ 키가 없어도 시뮬레이션 모드로 100% 정상 작동합니다.</p>
         </div>
 
-        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-1.5">
-          <span class="font-bold text-slate-700">인증키 발급 안내:</span>
-          <p>공공데이터포털(data.go.kr) ➡️ 마이페이지 ➡️ [데이터활용 - Open API]에서 확인하실 수 있습니다.</p>
+        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-[11px] space-y-1">
+          <span class="font-bold text-slate-700">안내:</span>
+          <p>공공데이터포털(data.go.kr) ➡️ 마이페이지 ➡️ [데이터활용 - Open API]에서 확인 가능합니다.</p>
         </div>
       </div>
 
-      <div class="flex gap-2 pt-2">
-        <button onclick="saveUserApiKey()" class="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition">
+      <div class="flex gap-2 pt-1">
+        <button onclick="saveUserApiKey()" class="flex-1 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition">
           저장하기
         </button>
-        <button onclick="toggleConfigModal()" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold transition">
+        <button onclick="toggleConfigModal()" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold transition">
           닫기
         </button>
       </div>
@@ -537,20 +533,19 @@
        프론트엔드 핵심 제어 자바스크립트
        ==================================================================== -->
   <script>
-    // 프랜차이즈 확장 업종 마스터 정의
+    // 프랜차이즈 9대 확장 업종 정의 (모바일 카드 레이아웃 최적화)
     const FRANCHISE_CLASSES_CONFIG = [
-      { code: "43", name: "외식·카페 매장", group: "매장", icon: "utensils", desc: "음식점업, 카페업, 제과점업, 주점업" },
-      { code: "35", name: "가맹사업·유통·쇼핑몰", group: "유통", icon: "building-2", desc: "가맹관리업, 식음료 도소매, 이커머스" },
-      { code: "29", name: "밀키트·간편조리식품", group: "간편식", icon: "box", desc: "HMR 밀키트, 냉동식품, 국/찌개/가공육" },
-      { code: "30", name: "소스·시즈닝·원두·제과", group: "소스류", icon: "flask-conical", desc: "비법 양념장, 복합조미료, 커피원두, 빵" },
-      { code: "21", name: "굿즈 (텀블러·식기류)", group: "굿즈", icon: "coffee", desc: "브랜드 텀블러, 머그컵, 글라스잔, 식기" },
-      { code: "25", name: "굿즈 (의류·앞치마·모자)", group: "굿즈", icon: "shirt", desc: "유니폼, 직원 앞치마, 티셔츠, 굿즈의류" },
-      { code: "16", name: "패키지 (포장박스·스티커)", group: "패키징", icon: "package", desc: "배달 포장 종이용기, 로고 스티커, 문구" },
-      { code: "18", name: "굿즈 (에코백·보냉백)", group: "굿즈", icon: "shopping-bag", desc: "에코백, 장바구니, 보냉 파우치" },
-      { code: "32", name: "완제음료·주스·생수", group: "음료", icon: "cup-soda", desc: "RTD 캔/병음료, 과일주스, 탄산, 생수" }
+      { code: "43", name: "외식·카페 매장", desc: "음식점, 카페, 제과점업", group: "매장" },
+      { code: "35", name: "가맹사업·도소매", desc: "가맹점관리, 유통, 쇼핑몰", group: "유통" },
+      { code: "29", name: "HMR 밀키트", desc: "냉동식품, 가공육, 국/찌개", group: "간편식" },
+      { code: "30", name: "비법 소스·양념", desc: "양념장, 복합조미료, 원두", group: "소스류" },
+      { code: "21", name: "굿즈 (텀블러·식기)", desc: "텀블러, 머그컵, 주방식기", group: "굿즈" },
+      { code: "25", name: "굿즈 (유니폼·의류)", desc: "직원 유니폼, 앞치마, 모자", group: "굿즈" },
+      { code: "16", name: "포장박스·스티커", desc: "배달 종이용기, 스티커, 문구", group: "패키지" },
+      { code: "18", name: "굿즈 (에코백·가방)", desc: "에코백, 쇼퍼백, 보냉파우치", group: "굿즈" },
+      { code: "32", name: "완제음료·생수·주스", desc: "RTD 캔/병음료, 탄산, 생수", group: "음료" }
     ];
 
-    // 기본 선택된 프랜차이즈 4대 필수 업종 (매장, 가맹관리, 밀키트, 소스)
     let selectedClasses = ["43", "35", "29", "30"];
 
     // 전역 상태
@@ -573,7 +568,7 @@
       performSearch('달빛카페', selectedClasses);
     });
 
-    // 2. 업종 선택 칩 렌더링
+    // 2. 업종 선택 카드 렌더링 (모바일 말줄임표 없이 상하 2단 구조로 가독성 완성)
     function renderClassChips() {
       const container = document.getElementById('classChipsContainer');
       container.innerHTML = FRANCHISE_CLASSES_CONFIG.map(cls => {
@@ -582,29 +577,39 @@
           <button 
             type="button" 
             onclick="toggleClass('${cls.code}')" 
-            class="text-left p-2.5 rounded-xl border transition flex items-start gap-2 ${
+            class="text-left p-2.5 rounded-xl border transition flex flex-col justify-between ${
               isChecked 
-                ? 'bg-indigo-50/80 border-indigo-500 text-indigo-900 shadow-xs' 
+                ? 'bg-indigo-50/90 border-indigo-500 text-indigo-950 shadow-xs ring-1 ring-indigo-500/20' 
                 : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
             }"
           >
-            <div class="mt-0.5 shrink-0 ${isChecked ? 'text-indigo-600' : 'text-slate-400'}">
-              <i data-lucide="${isChecked ? 'check-square' : 'square'}" class="w-4 h-4"></i>
-            </div>
-            <div class="min-w-0">
-              <div class="flex items-center gap-1">
-                <span class="text-[10px] font-extrabold px-1.5 py-0.2 rounded ${isChecked ? 'bg-indigo-200/70 text-indigo-900' : 'bg-slate-100 text-slate-600'}">
-                  제${cls.code}류
-                </span>
-                <span class="text-xs font-bold truncate">${cls.name}</span>
+            <!-- 상단: 체크박스 아이콘 + 제XX류 뱃지 -->
+            <div class="flex items-center justify-between w-full mb-1.5">
+              <span class="text-[10px] font-extrabold px-1.5 py-0.5 rounded ${
+                isChecked ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-600'
+              }">
+                제${cls.code}류
+              </span>
+              <div class="shrink-0 ${isChecked ? 'text-indigo-600' : 'text-slate-300'}">
+                <i data-lucide="${isChecked ? 'check-circle-2' : 'circle'}" class="w-4 h-4"></i>
               </div>
-              <p class="text-[10px] text-slate-400 mt-0.5 line-clamp-1">${cls.desc}</p>
+            </div>
+
+            <!-- 중단: 영역 이름 (말줄임 없이 풀 네임 노출) -->
+            <div class="w-full">
+              <div class="text-xs font-bold text-slate-900 leading-tight mb-0.5">
+                ${cls.name}
+              </div>
+              <!-- 하단: 설명 요약 -->
+              <p class="text-[10px] text-slate-400 leading-tight line-clamp-1">
+                ${cls.desc}
+              </p>
             </div>
           </button>
         `;
       }).join('');
 
-      document.getElementById('selectedClassCount').innerText = `선택: ${selectedClasses.length}개 영역`;
+      document.getElementById('selectedClassCount').innerText = `${selectedClasses.length}개 선택됨`;
       lucide.createIcons();
     }
 
@@ -632,7 +637,7 @@
       renderClassChips();
     }
 
-    // 3. 실행 환경 자동 감지
+    // 3. 환경 감지
     async function detectEnvironment() {
       const badge = document.getElementById('statusBadge');
       const text = document.getElementById('statusText');
@@ -642,18 +647,18 @@
         if (res.ok) {
           const data = await res.json();
           isServerMode = true;
-          badge.className = "flex items-center space-x-1.5 text-[11px] sm:text-xs px-2.5 sm:px-3 py-1.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 font-medium";
-          text.innerText = data.useMock ? "서버 시뮬레이션 모드" : "KIPRIS 실시간 연동";
+          badge.className = "flex items-center space-x-1 text-[11px] px-2 sm:px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 font-bold whitespace-nowrap";
+          text.innerText = data.useMock ? "서버 모드" : "실시간 API";
           return;
         }
       } catch (err) {}
 
       isServerMode = false;
-      badge.className = "flex items-center space-x-1.5 text-[11px] sm:text-xs px-2.5 sm:px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-medium";
-      text.innerText = "스마트폰 상시 접속 모드";
+      badge.className = "flex items-center space-x-1 text-[11px] px-2 sm:px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold whitespace-nowrap";
+      text.innerText = "모바일 24H";
     }
 
-    // 4. 상표 검색 실행
+    // 4. 검색
     async function handleSearch(e) {
       if (e) e.preventDefault();
       const query = document.getElementById('searchQueryInput').value.trim();
@@ -688,9 +693,8 @@
         renderResultsList(currentResults);
 
         document.getElementById('resultModeInfo').innerText = 
-          isServerMode ? (data.mode === 'REAL_KIPRIS_API' ? 'KIPRIS 공공데이터 실시간' : '모의 데이터') : '스마트폰 24H 시뮬레이터';
+          isServerMode ? (data.mode === 'REAL_KIPRIS_API' ? 'KIPRIS 실시간' : '모의 데이터') : '스마트폰 24H 모드';
       } catch (err) {
-        console.warn("검색 오류 -> 내장 엔진으로 대체:", err);
         const fallback = localAnalyzeFranchise(query, classesArray);
         currentResults = fallback.items;
         currentMatrix = fallback.matrix;
@@ -705,7 +709,6 @@
       }
     }
 
-    // 브라우저 내장 프랜차이즈 다중 분류 분석 엔진
     function localAnalyzeFranchise(query, targetClasses) {
       const qLower = query.toLowerCase();
       const mockDb = [
@@ -719,7 +722,6 @@
       let results = [];
       const checkClasses = (targetClasses && targetClasses.length > 0) ? targetClasses : FRANCHISE_CLASSES_CONFIG.map(c => c.code);
 
-      // 매칭되는 목업 상표 추가
       mockDb.forEach(item => {
         const titleMatch = item.title.toLowerCase().includes(qLower);
         const classMatch = checkClasses.some(c => item.classification.includes(c));
@@ -734,7 +736,6 @@
         }
       });
 
-      // 선택한 영역 중 등록 내역이 없는 영역은 '신규 출원 가능(안전)'으로 추가
       checkClasses.forEach(code => {
         const exists = results.some(r => r.classification.includes(code));
         if (!exists) {
@@ -753,7 +754,6 @@
         }
       });
 
-      // 매트릭스 계산
       const matrix = checkClasses.map(code => {
         const cfg = FRANCHISE_CLASSES_CONFIG.find(c => c.code === code) || { name: `제${code}류`, desc: '', group: '기타' };
         const inClass = results.filter(r => r.classification.includes(code));
@@ -797,11 +797,11 @@
       };
     }
 
-    // 5. 프랜차이즈 확장 매트릭스 카드 렌더링
+    // 5. 프랜차이즈 매트릭스 렌더링
     function renderFranchiseMatrix(matrix) {
       const grid = document.getElementById('franchiseMatrixGrid');
       if (!matrix || matrix.length === 0) {
-        grid.innerHTML = `<div class="col-span-3 text-center py-6 text-slate-400 text-xs">선택된 확장 영역이 없습니다.</div>`;
+        grid.innerHTML = `<div class="col-span-3 text-center py-5 text-slate-400 text-xs">선택된 확장 영역이 없습니다.</div>`;
         return;
       }
 
@@ -821,21 +821,21 @@
         }
 
         return `
-          <div class="rounded-xl border ${borderClass} p-3.5 space-y-2.5 transition hover:shadow-xs">
+          <div class="rounded-xl border ${borderClass} p-3 space-y-2 transition">
             <div class="flex items-center justify-between gap-1">
-              <span class="text-[11px] font-extrabold px-2 py-0.5 rounded bg-slate-100 text-slate-700">
-                제${m.code}류 [${m.group}]
+              <span class="text-[10px] font-extrabold px-1.5 py-0.5 rounded bg-slate-100 text-slate-700">
+                제${m.code}류
               </span>
-              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border ${badgeClass} flex items-center gap-1">
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border ${badgeClass} flex items-center gap-1 whitespace-nowrap">
                 <span class="w-1.5 h-1.5 rounded-full ${dotColor}"></span>
                 ${m.status}
               </span>
             </div>
             <div>
               <h6 class="text-xs font-bold text-slate-900">${m.name}</h6>
-              <p class="text-[11px] text-slate-400 line-clamp-1">${m.desc}</p>
+              <p class="text-[10px] text-slate-400 line-clamp-1">${m.desc}</p>
             </div>
-            <div class="text-[11px] text-slate-600 bg-white/80 p-2 rounded-lg border border-slate-100">
+            <div class="text-[10px] text-slate-600 bg-white/80 p-2 rounded-lg border border-slate-100">
               ${m.comment}
             </div>
           </div>
@@ -844,7 +844,7 @@
       lucide.createIcons();
     }
 
-    // 6. 위험도 요약 위젯 갱신
+    // 6. 요약 위젯 갱신
     function updateSummaryWidget(data) {
       const summary = data.summary || { danger: 0, warning: 0, safe: 0 };
       
@@ -858,31 +858,31 @@
       const verdictDesc = document.getElementById('riskVerdictDesc');
 
       if (summary.danger > 0) {
-        verdictBadge.className = "px-3 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200 flex items-center gap-1.5";
-        verdictBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-rose-600 animate-ping"></span> 일부 영역 등록 존재 (확장 주의)`;
+        verdictBadge.className = "px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-50 text-rose-700 border border-rose-200 flex items-center gap-1 whitespace-nowrap";
+        verdictBadge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-rose-600 animate-ping"></span> 일부 영역 등록 존재`;
         verdictTitle.innerText = "선택하신 사업 영역 중 이미 등록된 동일 상표가 존재합니다!";
-        verdictDesc.innerHTML = "위의 <strong>'확장 매트릭스'</strong>에서 빨간색으로 표시된 영역(예: 매장 또는 가맹사업)은 타인의 독점 권리가 있으므로, 해당 영역에 대한 브랜드명을 분리하거나 전면 수정을 권장합니다.";
+        verdictDesc.innerHTML = "위의 '확장 매트릭스'에서 빨간색으로 표시된 영역은 타인의 독점 권리가 있으므로, 해당 영역에 대한 브랜드명을 분리하거나 전면 수정을 권장합니다.";
       } else if (summary.warning > 0) {
-        verdictBadge.className = "px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1.5";
-        verdictBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500"></span> 심사진행 영역 존재 (모니터링 필요)`;
+        verdictBadge.className = "px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1 whitespace-nowrap";
+        verdictBadge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> 심사진행 영역 존재`;
         verdictTitle.innerText = "현재 특허청에서 심사 중인 유사 출원 건이 있습니다.";
         verdictDesc.innerHTML = "선출원인의 심사 통과 여부에 따라 향후 가맹사업 및 제품 확장에 제동이 걸릴 수 있습니다.";
       } else {
-        verdictBadge.className = "px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1.5";
-        verdictBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500"></span> 프랜차이즈 전 영역 출원 가능 (최상)`;
+        verdictBadge.className = "px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1 whitespace-nowrap";
+        verdictBadge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> 전 영역 출원 가능 (최상)`;
         verdictTitle.innerText = "선택하신 모든 확장 영역에서 등록 상표가 발견되지 않았습니다!";
-        verdictDesc.innerHTML = "매장 운영(43류)부터 가맹사업(35류), 밀키트(29류), 소스(30류), 굿즈(21류)까지 <strong>프랜차이즈 전 영역 일괄 동시 출원</strong>을 적극 권장합니다.";
+        verdictDesc.innerHTML = "매장 운영부터 가맹사업, 밀키트, 소스, 굿즈까지 프랜차이즈 전 영역 일괄 동시 출원을 적극 권장합니다.";
       }
     }
 
-    // 7. 검색 결과 리스트 렌더링
+    // 7. 결과 리스트
     function renderResultsList(items) {
       const container = document.getElementById('resultsList');
       if (!items || items.length === 0) {
         container.innerHTML = `
-          <div class="col-span-2 text-center py-12 bg-white rounded-2xl border border-slate-200">
-            <i data-lucide="file-question" class="w-10 h-10 text-slate-300 mx-auto mb-2"></i>
-            <p class="text-sm font-bold text-slate-600">선택된 업종에서 검색된 상표 결과가 없습니다.</p>
+          <div class="col-span-2 text-center py-10 bg-white rounded-2xl border border-slate-200">
+            <i data-lucide="file-question" class="w-8 h-8 text-slate-300 mx-auto mb-1.5"></i>
+            <p class="text-xs font-bold text-slate-600">선택된 업종에서 검색된 상표 결과가 없습니다.</p>
           </div>
         `;
         lucide.createIcons();
@@ -902,56 +902,55 @@
         const isBookmarked = myFolder.some(f => f.applicationNumber === item.applicationNumber && f.title === item.title);
 
         return `
-          <div class="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-xs hover:shadow-md transition flex flex-col justify-between">
+          <div class="bg-white rounded-2xl border border-slate-200 p-3.5 sm:p-4 shadow-xs hover:shadow-md transition flex flex-col justify-between">
             <div>
-              <div class="flex items-start justify-between gap-3 mb-2.5">
+              <div class="flex items-start justify-between gap-2 mb-2">
                 <div>
-                  <div class="flex items-center gap-1.5 mb-1 flex-wrap">
-                    <span class="text-[11px] px-2 py-0.5 rounded-full border ${badgeColor}">
+                  <div class="flex items-center gap-1 mb-1 flex-wrap">
+                    <span class="text-[10px] px-2 py-0.2 rounded-full border ${badgeColor}">
                       ${item.registerStatus}
                     </span>
                     <span class="text-xs font-bold text-slate-600">${item.classification || ''}</span>
-                    <span class="text-[10px] text-slate-400">${item.classificationName || ''}</span>
                   </div>
-                  <h5 class="text-base font-bold text-slate-900">${item.title}</h5>
+                  <h5 class="text-sm sm:text-base font-bold text-slate-900">${item.title}</h5>
                 </div>
-                <div class="flex items-center gap-1.5 shrink-0">
+                <div class="flex items-center gap-1 shrink-0">
                   <button 
                     onclick="openDetailModal(${index})" 
-                    class="p-2 rounded-xl border bg-slate-50 text-slate-500 border-slate-200 hover:text-indigo-600 hover:border-indigo-200 transition"
+                    class="p-1.5 rounded-lg border bg-slate-50 text-slate-500 border-slate-200 hover:text-indigo-600 transition"
                     title="상세 공보 보기"
                   >
-                    <i data-lucide="info" class="w-4 h-4"></i>
+                    <i data-lucide="info" class="w-3.5 h-3.5"></i>
                   </button>
                   <button 
                     onclick="toggleBookmark(${index})" 
-                    class="p-2 rounded-xl border ${isBookmarked ? 'bg-rose-50 text-rose-600 border-rose-200' : 'bg-slate-50 text-slate-400 border-slate-200 hover:text-slate-600'} transition"
-                    title="마이폴더에 보관"
+                    class="p-1.5 rounded-lg border ${isBookmarked ? 'bg-rose-50 text-rose-600 border-rose-200' : 'bg-slate-50 text-slate-400 border-slate-200'} transition"
+                    title="마이폴더 보관"
                   >
-                    <i data-lucide="${isBookmarked ? 'heart' : 'bookmark'}" class="w-4 h-4"></i>
+                    <i data-lucide="${isBookmarked ? 'heart' : 'bookmark'}" class="w-3.5 h-3.5"></i>
                   </button>
                 </div>
               </div>
 
               <!-- 이미지 도면 및 세부 정보 -->
-              <div class="flex gap-3.5 my-3 items-center">
+              <div class="flex gap-3 my-2.5 items-center">
                 ${item.bigDrawing ? `
-                  <img src="${item.bigDrawing}" alt="${item.title}" class="w-18 h-18 sm:w-20 sm:h-20 object-cover rounded-xl border border-slate-200 shrink-0 bg-slate-50" onerror="this.style.display='none'"/>
+                  <img src="${item.bigDrawing}" alt="${item.title}" class="w-16 h-16 sm:w-18 sm:h-18 object-cover rounded-xl border border-slate-200 shrink-0 bg-slate-50" onerror="this.style.display='none'"/>
                 ` : `
-                  <div class="w-18 h-18 sm:w-20 sm:h-20 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 border border-slate-200 shrink-0 text-[11px] font-medium text-center p-1">
+                  <div class="w-16 h-16 sm:w-18 sm:h-18 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 border border-slate-200 shrink-0 text-[10px] font-medium text-center p-1">
                     도면 없음
                   </div>
                 `}
-                <div class="text-[11px] sm:text-xs space-y-1 text-slate-600">
-                  <div><span class="text-slate-400 font-medium">출원번호:</span> ${item.applicationNumber}</div>
-                  <div><span class="text-slate-400 font-medium">출원일자:</span> ${item.applicationDate}</div>
-                  <div><span class="text-slate-400 font-medium">출원인:</span> ${item.applicantName || '-'}</div>
+                <div class="text-[11px] space-y-0.5 text-slate-600">
+                  <div><span class="text-slate-400">출원번호:</span> ${item.applicationNumber}</div>
+                  <div><span class="text-slate-400">출원일자:</span> ${item.applicationDate}</div>
+                  <div><span class="text-slate-400">출원인:</span> ${item.applicantName || '-'}</div>
                 </div>
               </div>
 
               <!-- 위험도 판별 설명 박스 -->
-              <div class="p-3 bg-slate-50 rounded-xl text-xs text-slate-600 border border-slate-100 mt-2">
-                <strong class="text-slate-800">영역 진단:</strong> ${item.riskReason}
+              <div class="p-2.5 bg-slate-50 rounded-xl text-[11px] text-slate-600 border border-slate-100 mt-1.5">
+                <strong class="text-slate-800">진단:</strong> ${item.riskReason}
               </div>
             </div>
           </div>
@@ -961,7 +960,6 @@
       lucide.createIcons();
     }
 
-    // 8. 빠른 테스트 키워드 클릭
     function setQuickSearch(query, classesArray) {
       document.getElementById('searchQueryInput').value = query;
       selectedClasses = classesArray || ["43", "35", "29", "30"];
@@ -969,14 +967,13 @@
       performSearch(query, selectedClasses);
     }
 
-    // 9. 탭 전환
     function switchTab(tab) {
       const tabs = ['trademark', 'logo', 'folder'];
       tabs.forEach(t => {
         document.getElementById(`tab${capitalize(t)}`).className = 
           t === tab 
-            ? "pb-3 border-b-2 border-indigo-600 text-indigo-600 font-bold flex items-center gap-1.5 shrink-0 transition" 
-            : "pb-3 border-b-2 border-transparent text-slate-500 hover:text-slate-700 flex items-center gap-1.5 shrink-0 transition";
+            ? "pb-2.5 border-b-2 border-indigo-600 text-indigo-600 flex items-center gap-1.5 shrink-0 whitespace-nowrap transition font-bold" 
+            : "pb-2.5 border-b-2 border-transparent text-slate-500 hover:text-slate-700 flex items-center gap-1.5 shrink-0 whitespace-nowrap transition";
         document.getElementById(`view${capitalize(t)}`).classList.toggle('hidden', t !== tab);
       });
 
@@ -991,7 +988,7 @@
       return str.charAt(0).toUpperCase() + str.slice(1);
     }
 
-    // 10. 마이폴더 관리
+    // 마이폴더 관리
     function toggleBookmark(index) {
       const item = currentResults[index];
       const foundIdx = myFolder.findIndex(f => f.applicationNumber === item.applicationNumber && f.title === item.title);
@@ -1015,10 +1012,9 @@
       const container = document.getElementById('folderList');
       if (myFolder.length === 0) {
         container.innerHTML = `
-          <div class="col-span-2 text-center py-16 bg-white rounded-2xl border border-slate-200">
-            <i data-lucide="bookmark" class="w-10 h-10 text-slate-300 mx-auto mb-2"></i>
-            <p class="text-sm font-bold text-slate-600">보관된 상표가 없습니다.</p>
-            <p class="text-xs text-slate-400 mt-1">검색 결과에서 북마크 아이콘을 눌러 후보들을 모아보세요.</p>
+          <div class="col-span-2 text-center py-12 bg-white rounded-2xl border border-slate-200">
+            <i data-lucide="bookmark" class="w-8 h-8 text-slate-300 mx-auto mb-1.5"></i>
+            <p class="text-xs font-bold text-slate-600">보관된 상표가 없습니다.</p>
           </div>
         `;
         lucide.createIcons();
@@ -1026,13 +1022,13 @@
       }
 
       container.innerHTML = myFolder.map((item, idx) => `
-        <div class="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-xs flex items-center justify-between">
+        <div class="bg-white rounded-2xl border border-slate-200 p-3.5 shadow-xs flex items-center justify-between">
           <div>
-            <span class="text-[11px] font-bold text-indigo-600">${item.classification}</span>
-            <h5 class="text-base font-bold text-slate-900">${item.title}</h5>
-            <p class="text-xs text-slate-500 mt-1">상태: ${item.registerStatus} | 번호: ${item.applicationNumber}</p>
+            <span class="text-[10px] font-bold text-indigo-600">${item.classification}</span>
+            <h5 class="text-sm font-bold text-slate-900">${item.title}</h5>
+            <p class="text-[11px] text-slate-500 mt-0.5">상태: ${item.registerStatus} | 번호: ${item.applicationNumber}</p>
           </div>
-          <button onclick="removeFromFolder(${idx})" class="p-2 text-rose-500 hover:bg-rose-50 rounded-xl transition">
+          <button onclick="removeFromFolder(${idx})" class="p-1.5 text-rose-500 hover:bg-rose-50 rounded-lg transition">
             <i data-lucide="trash-2" class="w-4 h-4"></i>
           </button>
         </div>
@@ -1056,7 +1052,7 @@
       }
     }
 
-    // 11. 로고 이미지 업로드
+    // 로고 이미지 업로드
     function handleImageUpload(e) {
       const file = e.target.files[0];
       if (!file) return;
@@ -1067,8 +1063,6 @@
         const preview = document.getElementById('uploadPreviewContainer');
         preview.classList.remove('hidden');
         document.getElementById('uploadPreviewImg').src = event.target.result;
-        
-        document.getElementById('shapeKeywordInput').value = "초승달, 커피잔";
         handleShapeSearch();
       };
       reader.readAsDataURL(file);
@@ -1077,27 +1071,24 @@
     function renderDesignLogos(filteredList) {
       const grid = document.getElementById('logoResultsGrid');
       const list = filteredList || [
-        { articleName: "카페용 간판 (초승달 형상)", designNumber: "3020220045123", registrationDate: "2023-05-18", status: "등록", vienna: "01.07.01 (달)", comment: "초승달 조명 디자인 유사군", drawingUrl: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=300&auto=format&fit=crop&q=80" },
-        { articleName: "밀키트 패키지용 포장 박스", designNumber: "3020230055112", registrationDate: "2024-01-10", status: "등록", vienna: "08.01.01 (식품용기)", comment: "HMR 간편조리 냉장 패키지", drawingUrl: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=300&auto=format&fit=crop&q=80" },
-        { articleName: "비법 소스 보틀 용기 디자인", designNumber: "3020220098456", registrationDate: "2023-06-25", status: "등록", vienna: "19.04.01 (소스병)", comment: "프랜차이즈 납품용 소스 용기", drawingUrl: "https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=300&auto=format&fit=crop&q=80" },
-        { articleName: "브랜드 굿즈 보온 텀블러", designNumber: "3020210089456", registrationDate: "2022-03-10", status: "등록", vienna: "11.01.01 (텀블러)", comment: "매장 판매용 로고 각인 텀블러", drawingUrl: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=300&auto=format&fit=crop&q=80" }
+        { articleName: "카페용 간판 (초승달 형상)", designNumber: "3020220045123", status: "등록", vienna: "01.07.01 (달)", comment: "초승달 조명 디자인 유사군", drawingUrl: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=300&auto=format&fit=crop&q=80" },
+        { articleName: "밀키트 패키지용 포장 박스", designNumber: "3020230055112", status: "등록", vienna: "08.01.01 (식품용기)", comment: "HMR 간편조리 냉장 패키지", drawingUrl: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=300&auto=format&fit=crop&q=80" },
+        { articleName: "비법 소스 보틀 용기 디자인", designNumber: "3020220098456", status: "등록", vienna: "19.04.01 (소스병)", comment: "프랜차이즈 납품용 소스 용기", drawingUrl: "https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=300&auto=format&fit=crop&q=80" },
+        { articleName: "브랜드 굿즈 보온 텀블러", designNumber: "3020210089456", status: "등록", vienna: "11.01.01 (텀블러)", comment: "매장 판매용 로고 각인 텀블러", drawingUrl: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=300&auto=format&fit=crop&q=80" }
       ];
 
       grid.innerHTML = list.map(item => `
-        <div class="bg-white rounded-2xl border border-slate-200 p-3.5 space-y-2.5 shadow-xs hover:shadow-md transition">
-          <img src="${item.drawingUrl}" alt="${item.articleName}" class="w-full h-36 object-cover rounded-xl border border-slate-100 bg-slate-50" />
+        <div class="bg-white rounded-xl border border-slate-200 p-2.5 space-y-1.5 shadow-xs">
+          <img src="${item.drawingUrl}" alt="${item.articleName}" class="w-full h-28 object-cover rounded-lg border border-slate-100 bg-slate-50" />
           <div>
-            <div class="flex items-center justify-between gap-1 mb-1">
-              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${item.status === '등록' ? 'bg-rose-50 text-rose-700' : 'bg-amber-50 text-amber-700'}">
+            <div class="flex items-center justify-between gap-1 mb-0.5">
+              <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full ${item.status === '등록' ? 'bg-rose-50 text-rose-700' : 'bg-amber-50 text-amber-700'}">
                 ${item.status}
               </span>
-              <span class="text-[10px] text-slate-400 font-mono">${item.designNumber}</span>
+              <span class="text-[9px] text-slate-400 font-mono">${item.designNumber}</span>
             </div>
-            <h6 class="text-xs font-bold text-slate-800 line-clamp-1">${item.articleName}</h6>
-            <p class="text-[11px] text-slate-500 mt-1">${item.vienna}</p>
-          </div>
-          <div class="p-2 bg-slate-50 rounded-lg text-[10px] text-slate-500">
-            ${item.comment}
+            <h6 class="text-xs font-bold text-slate-800 truncate">${item.articleName}</h6>
+            <p class="text-[10px] text-slate-400">${item.vienna}</p>
           </div>
         </div>
       `).join('');
@@ -1105,11 +1096,10 @@
     }
 
     function handleShapeSearch() {
-      const kw = document.getElementById('shapeKeywordInput').value.trim().toLowerCase();
       renderDesignLogos();
     }
 
-    // 12. 상표 상세 정보 모달
+    // 상세 모달
     function openDetailModal(index) {
       const item = currentResults[index];
       if (!item) return;
@@ -1118,32 +1108,23 @@
       const body = document.getElementById('modalBody');
 
       body.innerHTML = `
-        <div class="space-y-3">
-          <div class="flex items-center gap-2">
-            <span class="px-2.5 py-0.5 rounded-full text-xs font-bold ${item.registerStatus.includes('등록') ? 'bg-rose-50 text-rose-700' : 'bg-amber-50 text-amber-700'}">
-              권리상태: ${item.registerStatus}
+        <div class="space-y-2.5">
+          <div class="flex items-center gap-1.5">
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${item.registerStatus.includes('등록') ? 'bg-rose-50 text-rose-700' : 'bg-amber-50 text-amber-700'}">
+              상태: ${item.registerStatus}
             </span>
             <span class="text-xs text-slate-500 font-bold">${item.classification}</span>
           </div>
 
-          <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-1.5 text-xs">
-            <div class="flex justify-between">
-              <span class="text-slate-500">출원번호:</span>
-              <span class="font-bold text-slate-800">${item.applicationNumber}</span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-slate-500">출원일자:</span>
-              <span class="font-bold text-slate-800">${item.applicationDate}</span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-slate-500">출원인:</span>
-              <span class="font-bold text-slate-800">${item.applicantName || '-'}</span>
-            </div>
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-1 text-xs">
+            <div class="flex justify-between"><span class="text-slate-400">출원번호:</span><span class="font-bold text-slate-800">${item.applicationNumber}</span></div>
+            <div class="flex justify-between"><span class="text-slate-400">출원일자:</span><span class="font-bold text-slate-800">${item.applicationDate}</span></div>
+            <div class="flex justify-between"><span class="text-slate-400">출원인:</span><span class="font-bold text-slate-800">${item.applicantName || '-'}</span></div>
           </div>
 
           <div>
             <span class="font-bold text-slate-800 block mb-1">프랜차이즈 권리 분석:</span>
-            <div class="p-3 bg-indigo-50/60 rounded-xl border border-indigo-100 text-xs text-indigo-900 leading-relaxed">
+            <div class="p-2.5 bg-indigo-50/60 rounded-xl border border-indigo-100 text-xs text-indigo-900 leading-relaxed">
               ${item.riskReason}
             </div>
           </div>
@@ -1157,7 +1138,6 @@
       document.getElementById('detailModal').classList.toggle('hidden');
     }
 
-    // 13. 후보 상표 비교 분석표 모달
     function toggleCompareModal() {
       const modal = document.getElementById('compareModal');
       modal.classList.toggle('hidden');
@@ -1169,11 +1149,7 @@
     function renderCompareTable() {
       const body = document.getElementById('compareBody');
       if (myFolder.length === 0) {
-        body.innerHTML = `
-          <div class="text-center py-8 text-slate-400 text-xs">
-            보관함에 저장된 후보 상표가 없습니다. 검색 결과에서 상표를 북마크한 후 비교해 보세요.
-          </div>
-        `;
+        body.innerHTML = `<div class="text-center py-6 text-slate-400 text-xs">보관된 상표가 없습니다.</div>`;
         return;
       }
 
@@ -1181,23 +1157,17 @@
         <table class="w-full text-xs text-left border-collapse">
           <thead>
             <tr class="border-b border-slate-200 bg-slate-50">
-              <th class="p-3 font-bold text-slate-700">후보 상표명</th>
-              <th class="p-3 font-bold text-slate-700">권리상태</th>
-              <th class="p-3 font-bold text-slate-700">분류</th>
-              <th class="p-3 font-bold text-slate-700">안전성 판정</th>
+              <th class="p-2.5 font-bold text-slate-700">상표명</th>
+              <th class="p-2.5 font-bold text-slate-700">상태</th>
+              <th class="p-2.5 font-bold text-slate-700">분류</th>
             </tr>
           </thead>
           <tbody>
             ${myFolder.map(item => `
-              <tr class="border-b border-slate-100 hover:bg-slate-50/50">
-                <td class="p-3 font-bold text-slate-900">${item.title}</td>
-                <td class="p-3">
-                  <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${item.registerStatus.includes('등록') ? 'bg-rose-50 text-rose-700' : 'bg-emerald-50 text-emerald-700'}">
-                    ${item.registerStatus}
-                  </span>
-                </td>
-                <td class="p-3 text-slate-600">${item.classification}</td>
-                <td class="p-3 text-slate-600">${item.riskReason}</td>
+              <tr class="border-b border-slate-100">
+                <td class="p-2.5 font-bold text-slate-900">${item.title}</td>
+                <td class="p-2.5"><span class="px-1.5 py-0.2 rounded text-[10px] font-bold ${item.registerStatus.includes('등록') ? 'bg-rose-50 text-rose-700' : 'bg-emerald-50 text-emerald-700'}">${item.registerStatus}</span></td>
+                <td class="p-2.5 text-slate-600">${item.classification}</td>
               </tr>
             `).join('')}
           </tbody>
@@ -1205,31 +1175,23 @@
       `;
     }
 
-    // 14. 진단 결과 요약 복사
     function copyDiagnosticReport() {
       if (!lastSearchSummary) {
         alert("검색을 먼저 실행해 주세요.");
         return;
       }
       const classesStr = selectedClasses.map(c => `제${c}류`).join(', ');
-      const text = `[KIPRIS 프랜차이즈 상표 종합 진단서]
-- 브랜드명: ${lastSearchSummary.query}
-- 검증 영역: ${classesStr} (${selectedClasses.length}개 업종)
-- 위험(등록존재): ${lastSearchSummary.summary.danger}건
-- 주의(출원심사): ${lastSearchSummary.summary.warning}건
-- 안전(신규가능): ${lastSearchSummary.summary.safe}건
-- 최종 소견: ${document.getElementById('riskVerdictTitle').innerText}
-
-※ 특허청(KIPRIS) 데이터베이스를 기반으로 매장·밀키트·소스·굿즈 전 영역이 검증되었습니다.`;
+      const text = `[KIPRIS 프랜차이즈 상표 진단]
+- 브랜드: ${lastSearchSummary.query}
+- 검증영역: ${classesStr}
+- 위험: ${lastSearchSummary.summary.danger}건 / 주의: ${lastSearchSummary.summary.warning}건 / 안전: ${lastSearchSummary.summary.safe}건
+- 소견: ${document.getElementById('riskVerdictTitle').innerText}`;
 
       navigator.clipboard.writeText(text).then(() => {
-        alert("프랜차이즈 종합 진단 결과가 복사되었습니다!\n동업자 또는 변리사 상담용으로 활용하세요.");
-      }).catch(() => {
-        alert("복사 실패");
+        alert("진단 결과가 클립보드에 복사되었습니다!");
       });
     }
 
-    // 15. 환경 설정 모달
     function toggleConfigModal() {
       document.getElementById('configModal').classList.toggle('hidden');
     }
