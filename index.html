@@ -22,6 +22,13 @@
       font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
       -webkit-tap-highlight-color: transparent;
     }
+    .custom-scroll::-webkit-scrollbar {
+      height: 6px;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
     @media print {
       header, .no-print { display: none !important; }
       body { background: white !important; }
@@ -46,10 +53,10 @@
           <h1 class="text-base sm:text-lg font-bold text-slate-900 tracking-tight flex items-center gap-1.5 sm:gap-2">
             KIPRIS 지식재산
             <span class="text-[11px] sm:text-xs font-semibold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
-              상표·로고 검증기
+              프랜차이즈 상표 종합 검증기
             </span>
           </h1>
-          <p class="text-[11px] text-slate-500 hidden sm:block">새로운 가게명·로고의 상표권 침해 사전 진단 및 등록 가능성 분석</p>
+          <p class="text-[11px] text-slate-500 hidden sm:block">외식 매장부터 밀키트, 비법 소스, 브랜드 굿즈까지 프랜차이즈 전 영역 사전 진단</p>
         </div>
       </div>
 
@@ -87,16 +94,16 @@
 
     <!-- 히어로 안내 배너 -->
     <div class="bg-gradient-to-br from-indigo-900 via-indigo-800 to-slate-900 rounded-2xl sm:rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
-      <div class="relative z-10 max-w-2xl space-y-2 sm:space-y-3">
+      <div class="relative z-10 max-w-3xl space-y-2 sm:space-y-3">
         <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/30 text-indigo-200 text-xs font-medium border border-indigo-400/30">
-          <i data-lucide="sparkles" class="w-3.5 h-3.5 text-indigo-300"></i>
-          스마트폰 & PC 24시간 언제 어디서나 사전 검증
+          <i data-lucide="store" class="w-3.5 h-3.5 text-indigo-300"></i>
+          프랜차이즈 창업자를 위한 다중 영역(매장·밀키트·소스·굿즈) 원스톱 상표 검증
         </div>
         <h2 class="text-xl sm:text-3xl font-extrabold tracking-tight leading-tight">
-          만들고 싶은 가게명과 로고를<br class="sm:hidden" /> 지금 바로 검증하세요
+          단순 매장 오픈을 넘어,<br class="sm:hidden" /> 프랜차이즈 확장성까지 검증하세요
         </h2>
         <p class="text-xs sm:text-sm text-indigo-100/90 leading-relaxed font-normal">
-          특허청(KIPRIS) 상표·디자인 공보 데이터와 실시간 대조하여, <strong>동일 상호 등록 여부</strong>와 <strong>간판 교체 및 상표권 침해 소송 위험</strong>을 사전에 안전하게 예방합니다.
+          식당 상호뿐만 아니라 <strong>가맹점 관리(제35류)</strong>, <strong>밀키트 간편식(제29류)</strong>, <strong>비법 소스(제30류)</strong>, <strong>텀블러/굿즈(제21·25류)</strong>의 상표권까지 한 번에 복합 조회하여 완벽한 브랜드 권리망을 구축합니다.
         </p>
       </div>
       <div class="absolute -right-8 -bottom-8 opacity-10 pointer-events-none hidden sm:block">
@@ -110,7 +117,7 @@
     <div class="flex border-b border-slate-200 space-x-4 sm:space-x-8 text-xs sm:text-sm font-semibold overflow-x-auto no-scrollbar">
       <button id="tabTrademark" onclick="switchTab('trademark')" class="pb-3 border-b-2 border-indigo-600 text-indigo-600 flex items-center gap-1.5 shrink-0 transition">
         <i data-lucide="type" class="w-4 h-4"></i>
-        가게명 (문자 상표) 검증
+        가게명·프랜차이즈 확장 종합 검증
       </button>
       <button id="tabLogo" onclick="switchTab('logo')" class="pb-3 border-b-2 border-transparent text-slate-500 hover:text-slate-700 flex items-center gap-1.5 shrink-0 transition">
         <i data-lucide="image" class="w-4 h-4"></i>
@@ -124,66 +131,108 @@
     </div>
 
     <!-- ==================================================================
-         [탭 1] 가게명(문자상표) 검색 뷰
+         [탭 1] 가게명 및 프랜차이즈 확장 복합 검증 뷰
          ================================================================== -->
     <section id="viewTrademark" class="space-y-6">
       
-      <!-- 검색바 카드 -->
-      <div class="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
-        <form id="searchForm" onsubmit="handleSearch(event)" class="grid grid-cols-1 md:grid-cols-12 gap-3">
+      <!-- 검색바 및 프랜차이즈 다중 업종 선택 카드 -->
+      <div class="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200 shadow-xs space-y-5">
+        <form id="searchForm" onsubmit="handleSearch(event)" class="space-y-4">
           
-          <!-- 상호/상표 입력란 -->
-          <div class="md:col-span-6">
-            <label class="block text-xs font-bold text-slate-700 mb-1.5">검증할 가게명 / 브랜드명</label>
-            <div class="relative">
-              <i data-lucide="search" class="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
-              <input 
-                type="text" 
-                id="searchQueryInput" 
-                value="달빛카페" 
-                placeholder="예: 달빛카페, 숲속의오븐, 미래우주버거" 
-                class="w-full pl-10 pr-4 py-2.5 sm:py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm font-medium transition"
-                required
-              />
+          <!-- 상표명 입력란 & 검색 버튼 -->
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-3">
+            <div class="md:col-span-9">
+              <label class="block text-xs font-bold text-slate-700 mb-1.5">검증할 브랜드명 / 프랜차이즈 가게명</label>
+              <div class="relative">
+                <i data-lucide="search" class="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+                <input 
+                  type="text" 
+                  id="searchQueryInput" 
+                  value="달빛카페" 
+                  placeholder="예: 달빛카페, 숲속의오븐, 미래우주버거" 
+                  class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm font-semibold transition"
+                  required
+                />
+              </div>
+            </div>
+
+            <!-- 검색 실행 버튼 -->
+            <div class="md:col-span-3 flex items-end">
+              <button 
+                type="submit" 
+                id="searchSubmitBtn"
+                class="w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-700 active:scale-[0.98] text-white font-bold rounded-xl text-sm transition flex items-center justify-center gap-2 shadow-md shadow-indigo-100"
+              >
+                <i data-lucide="search" class="w-4 h-4"></i>
+                종합 검증 실행
+              </button>
             </div>
           </div>
 
-          <!-- 업종 (상품분류) 선택란 -->
-          <div class="md:col-span-4">
-            <label class="block text-xs font-bold text-slate-700 mb-1.5">업종 선택 (NICE 상품분류)</label>
-            <select 
-              id="classificationSelect" 
-              class="w-full px-3 py-2.5 sm:py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm bg-white transition"
-            >
-              <option value="">전체 업종 (모든 분야 조회)</option>
-              <option value="43" selected>제43류 (음식점업, 카페, 제과점업, 숙박업)</option>
-              <option value="35">제35류 (도소매업, 온라인 쇼핑몰, 광고업)</option>
-              <option value="30">제30류 (커피원두, 제과/빵, 소스, 차류)</option>
-              <option value="41">제41류 (교육업, 학원, 엔터테인먼트, 출판)</option>
-              <option value="25">제25류 (의류, 신발, 모자)</option>
-            </select>
+          <!-- ============================================================
+               [핵심 신규 기능] 프랜차이즈 확장 영역 멀티 선택기 (Checkable Chips)
+               ============================================================ -->
+          <div class="pt-3 border-t border-slate-100 space-y-3">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <label class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                <i data-lucide="layers-3" class="w-4 h-4 text-indigo-600"></i>
+                프랜차이즈 확장 영역 다중 선택 (중복 체크 가능)
+                <span id="selectedClassCount" class="text-[11px] bg-indigo-50 text-indigo-700 font-bold px-2 py-0.5 rounded-full border border-indigo-200">
+                  선택: 4개 영역
+                </span>
+              </label>
+
+              <!-- 원클릭 프리셋 버튼들 -->
+              <div class="flex items-center gap-1.5 flex-wrap text-xs">
+                <span class="text-[11px] text-slate-400 font-medium">원클릭 추천:</span>
+                <button type="button" onclick="applyClassPreset('franchise_all')" class="px-2 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg font-bold text-[11px] transition">프랜차이즈 풀 패키지</button>
+                <button type="button" onclick="applyClassPreset('mealkit_sauce')" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-medium text-[11px] transition">밀키트+소스 집중</button>
+                <button type="button" onclick="applyClassPreset('goods_only')" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-medium text-[11px] transition">브랜드 굿즈</button>
+                <button type="button" onclick="applyClassPreset('all')" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-medium text-[11px] transition">전체 선택</button>
+                <button type="button" onclick="applyClassPreset('clear')" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg font-medium text-[11px] transition">초기화</button>
+              </div>
+            </div>
+
+            <!-- 다중 선택 칩 그리드 -->
+            <div id="classChipsContainer" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 pt-1">
+              <!-- 자바스크립트로 렌더링 -->
+            </div>
           </div>
 
-          <!-- 검색 버튼 -->
-          <div class="md:col-span-2 flex items-end">
-            <button 
-              type="submit" 
-              id="searchSubmitBtn"
-              class="w-full py-2.5 sm:py-3 px-4 bg-indigo-600 hover:bg-indigo-700 active:scale-[0.98] text-white font-bold rounded-xl text-sm transition flex items-center justify-center gap-2 shadow-md shadow-indigo-100"
-            >
-              <i data-lucide="search" class="w-4 h-4"></i>
-              검증하기
-            </button>
-          </div>
         </form>
 
         <!-- 빠른 테스트 키워드 태그 -->
-        <div class="flex items-center gap-1.5 sm:gap-2 text-xs text-slate-500 flex-wrap pt-1">
-          <span class="font-bold text-slate-400">빠른 테스트:</span>
-          <button type="button" onclick="setQuickSearch('달빛카페', '43')" class="px-2.5 py-1 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg transition font-medium">달빛카페 (등록-위험)</button>
-          <button type="button" onclick="setQuickSearch('달빛베이커리', '30')" class="px-2.5 py-1 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg transition font-medium">달빛베이커리 (출원-주의)</button>
-          <button type="button" onclick="setQuickSearch('달빛식당', '43')" class="px-2.5 py-1 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg transition font-medium">달빛식당 (거절-안전)</button>
-          <button type="button" onclick="setQuickSearch('미래우주버거', '43')" class="px-2.5 py-1 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg transition font-medium">미래우주버거 (미등록-안전)</button>
+        <div class="flex items-center gap-1.5 sm:gap-2 text-xs text-slate-500 flex-wrap pt-2 border-t border-slate-100">
+          <span class="font-bold text-slate-400">빠른 테스트 추천:</span>
+          <button type="button" onclick="setQuickSearch('달빛카페', ['43', '35', '29', '30'])" class="px-2.5 py-1 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg transition font-medium">달빛카페 (매장·가맹 위험 / 밀키트 안전)</button>
+          <button type="button" onclick="setQuickSearch('달빛베이커리', ['43', '30', '21'])" class="px-2.5 py-1 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg transition font-medium">달빛베이커리 (소스 출원심사 중)</button>
+          <button type="button" onclick="setQuickSearch('달빛식당', ['43', '29', '35'])" class="px-2.5 py-1 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg transition font-medium">달빛식당 (거절 이력-안전)</button>
+          <button type="button" onclick="setQuickSearch('미래우주버거', ['43', '35', '29', '30', '21'])" class="px-2.5 py-1 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg transition font-medium">미래우주버거 (전 영역 미등록-완전 안전)</button>
+        </div>
+      </div>
+
+      <!-- ================================================================
+           [신규 핵심 위젯] 프랜차이즈 확장 영역별 종합 안전도 매트릭스
+           ================================================================ -->
+      <div id="franchiseMatrixSection" class="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+          <div>
+            <h4 class="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2">
+              <i data-lucide="network" class="w-4 h-4 text-indigo-600"></i>
+              프랜차이즈 확장 영역별 안전성 진단 매트릭스
+            </h4>
+            <p class="text-xs text-slate-500 mt-0.5">선택하신 사업 확장 영역별로 상표권 선점 가능 여부를 한눈에 진단합니다.</p>
+          </div>
+          <div class="flex items-center gap-3 text-xs">
+            <span class="inline-flex items-center gap-1 text-rose-700 font-bold"><span class="w-2 h-2 rounded-full bg-rose-500"></span>위험 (침해)</span>
+            <span class="inline-flex items-center gap-1 text-amber-700 font-bold"><span class="w-2 h-2 rounded-full bg-amber-500"></span>주의 (심사진행)</span>
+            <span class="inline-flex items-center gap-1 text-emerald-700 font-bold"><span class="w-2 h-2 rounded-full bg-emerald-500"></span>안전 (선점가능)</span>
+          </div>
+        </div>
+
+        <!-- 매트릭스 카드 그리드 -->
+        <div id="franchiseMatrixGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          <!-- 자바스크립트로 동적 생성 -->
         </div>
       </div>
 
@@ -204,7 +253,7 @@
             </div>
             
             <h3 id="riskVerdictTitle" class="text-lg sm:text-xl font-bold text-slate-900 mb-2">
-              동일 또는 극도로 유사한 상표가 이미 '등록'되어 있습니다!
+              동일 또는 유사한 등록 상표가 존재합니다!
             </h3>
             <p id="riskVerdictDesc" class="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">
               해당 업종 내에 유효한 독점 배타권이 설정되어 있어, 동일 명칭으로 간판을 걸거나 사업을 진행할 경우 <strong>상표권 침해 경고장 및 손해배상 청구</strong>의 대상이 될 수 있습니다.
@@ -214,8 +263,8 @@
           <div class="p-3.5 bg-amber-50/70 rounded-xl border border-amber-200/60 text-xs text-amber-900 flex items-start gap-2.5">
             <i data-lucide="shield-alert" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
             <div>
-              <span class="font-bold">변리사 사전 검토 팁:</span>
-              상표권은 '선출원주의(먼저 특허청에 신청한 사람이 권리를 차지)'를 엄격히 따릅니다. 인테리어 시공 및 간판 제작 전 등록 가능성을 먼저 확보하세요.
+              <span class="font-bold">프랜차이즈 본사 설립 팁:</span>
+              외식 매장(제43류)만 등록하고 가맹사업(제35류)이나 밀키트(제29류)를 누락하면, 제3자가 해당 권리를 가로채 가맹점 납품이 전면 중단되는 분쟁이 빈번합니다. 다중 분류 동시 출원이 필수적입니다.
             </div>
           </div>
         </div>
@@ -243,11 +292,11 @@
               <span id="countWarning" class="text-sm font-extrabold text-amber-700">1건</span>
             </div>
 
-            <!-- 안전 (거절/소멸) -->
+            <!-- 안전 (거절/소멸/미등록) -->
             <div class="flex items-center justify-between p-3 rounded-xl bg-emerald-50 border border-emerald-100">
               <div class="flex items-center gap-2">
                 <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-                <span class="text-xs font-semibold text-emerald-900">거절 / 소멸 / 미등록</span>
+                <span class="text-xs font-semibold text-emerald-900">거절 / 소멸 / 신규영역</span>
               </div>
               <span id="countSafe" class="text-sm font-extrabold text-emerald-700">1건</span>
             </div>
@@ -303,7 +352,7 @@
               <i data-lucide="image-plus" class="w-6 h-6"></i>
             </div>
             <p class="text-xs sm:text-sm font-bold text-slate-700">스마트폰 사진 찍기 또는 로고 이미지 파일 선택</p>
-            <p class="text-[11px] text-slate-400">PNG, JPG, WebP 파일 지원 (최대 10MB)</p>
+            <p class="text-[11px] text-slate-400">간판, 포장용기, 텀블러 각인 로고 PNG, JPG 지원</p>
           </div>
 
           <!-- 업로드된 이미지 미리보기 영역 -->
@@ -383,7 +432,7 @@
   <footer class="bg-white border-t border-slate-200 py-6 mt-12 text-xs text-slate-500 text-center">
     <div class="max-w-7xl mx-auto px-4 space-y-2">
       <p>본 대시보드는 <strong>공공데이터포털(data.go.kr) 특허청 지식재산정보 Open API</strong>를 활용합니다.</p>
-      <p class="text-slate-400">모바일 및 PC 모든 기기에서 24시간 상시 조회할 수 있도록 최적화되었습니다.</p>
+      <p class="text-slate-400">프랜차이즈 창업자를 위해 외식, 가맹관리, 밀키트, 소스, 굿즈 다중 분류를 지원합니다.</p>
     </div>
   </footer>
 
@@ -488,161 +537,25 @@
        프론트엔드 핵심 제어 자바스크립트
        ==================================================================== -->
   <script>
-    // 내장 모의 상표 데이터
-    const MOCK_TRADEMARKS_DATA = [
-      {
-        title: "달빛카페 (MOONLIGHT CAFE)",
-        applicationNumber: "4020220194821",
-        applicationDate: "2022-09-15",
-        registrationDate: "2023-11-20",
-        registerStatus: "등록",
-        classification: "제43류",
-        classificationName: "음식점업, 카페업, 제과점업",
-        applicantName": "(주)달빛에프앤비",
-        bigDrawing: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=300&auto=format&fit=crop&q=80",
-        viennaCode: "01.07.01",
-        viennaDescription": "초승달 또는 반달",
-        designatedGoods": "커피전문점업, 디저트카페업, 테이크아웃커피점업, 제과점업",
-        agent: "특허법인 한빛 (담당변리사 홍길동)",
-        riskLevel: "DANGER",
-        riskReason: "동일 업종(제43류)에 이미 '등록'되어 있어 동일/유사 상호 사용 시 상표권 침해 소송 위험이 매우 높습니다."
-      },
-      {
-        title: "달빛베이커리",
-        applicationNumber: "4020230081234",
-        applicationDate: "2023-04-10",
-        registrationDate: "-",
-        registerStatus: "출원",
-        classification: "제30류",
-        classificationName": "빵, 과자, 케이크, 제과",
-        applicantName: "홍길동 (개인사업자)",
-        bigDrawing: "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=300&auto=format&fit=crop&q=80",
-        viennaCode: "01.07.06",
-        viennaDescription": "달과 풍경",
-        designatedGoods": "단팥빵, 크루아상, 조각케이크, 쿠키, 식빵",
-        agent: "본인 직접 출원",
-        riskLevel: "WARNING",
-        riskReason": "현재 심사진행(출원) 중인 상표입니다. 등록 결정 시 향후 분쟁 소지가 있으니 주시해야 합니다."
-      },
-      {
-        title: "달빛식당",
-        applicationNumber: "4020190012984",
-        applicationDate: "2019-01-22",
-        registrationDate: "-",
-        registerStatus: "거절",
-        classification: "제43류",
-        classificationName": "일반한식점업",
-        applicantName: "김철수",
-        bigDrawing: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=300&auto=format&fit=crop&q=80",
-        viennaCode": "",
-        viennaDescription": "문자만 존재",
-        designatedGoods": "한식점업, 백반전문점업",
-        agent: "대리인 없음",
-        riskLevel: "SAFE",
-        riskReason": "과거에 등록 거절된 이력이 있습니다. 독점 권리자가 존재하지 않으므로 사용 가능성이 비교적 높습니다."
-      },
-      {
-        title: "골든스타 로스팅 (GOLDEN STAR)",
-        applicationNumber: "4020180054321",
-        applicationDate: "2018-05-18",
-        registrationDate: "2019-08-30",
-        registerStatus: "소멸",
-        classification: "제43류",
-        classificationName": "커피전문점업",
-        applicantName": "(주)골든글로벌",
-        bigDrawing: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=300&auto=format&fit=crop&q=80",
-        viennaCode": "01.01.01",
-        viennaDescription": "별, 항성",
-        designatedGoods": "원두커피전문점, 핸드드립전문점",
-        agent: "태평양특허법률사무소",
-        riskLevel: "SAFE",
-        riskReason": "과거 등록되었으나 갱신료 미납 등으로 권리가 소멸(말소)되었습니다. 현재 유효한 독점 권리는 없습니다."
-      },
-      {
-        title: "바다향기 횟집",
-        applicationNumber: "4020210034112",
-        applicationDate: "2021-03-05",
-        registrationDate: "2022-04-12",
-        registerStatus: "등록",
-        classification: "제43류",
-        classificationName": "수산물요리전문점업",
-        applicantName": "이영희",
-        bigDrawing: "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?w=300&auto=format&fit=crop&q=80",
-        viennaCode": "03.09.01",
-        viennaDescription": "어류, 물고기",
-        designatedGoods": "생선회전문식당업, 해산물요리전문점업",
-        agent: "특허법인 세종",
-        riskLevel: "DANGER",
-        riskReason": "동일 업종에 등록되어 권리자가 영업 중인 상표입니다."
-      },
-      {
-        title: "숲속의 오븐",
-        applicationNumber: "4020200155231",
-        applicationDate: "2020-10-12",
-        registrationDate: "2021-12-05",
-        registerStatus: "등록",
-        classification: "제43류",
-        classificationName": "디저트카페, 제과점업",
-        applicantName": "(주)그린테이블",
-        bigDrawing: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=300&auto=format&fit=crop&q=80",
-        viennaCode": "05.01.01",
-        viennaDescription": "나무, 숲",
-        designatedGoods": "유기농빵집업, 숲카페업",
-        agent: "정진특허법률사무소",
-        riskLevel: "DANGER",
-        riskReason": "유효하게 등록된 상표입니다."
-      }
+    // 프랜차이즈 확장 업종 마스터 정의
+    const FRANCHISE_CLASSES_CONFIG = [
+      { code: "43", name: "외식·카페 매장", group: "매장", icon: "utensils", desc: "음식점업, 카페업, 제과점업, 주점업" },
+      { code: "35", name: "가맹사업·유통·쇼핑몰", group: "유통", icon: "building-2", desc: "가맹관리업, 식음료 도소매, 이커머스" },
+      { code: "29", name: "밀키트·간편조리식품", group: "간편식", icon: "box", desc: "HMR 밀키트, 냉동식품, 국/찌개/가공육" },
+      { code: "30", name: "소스·시즈닝·원두·제과", group: "소스류", icon: "flask-conical", desc: "비법 양념장, 복합조미료, 커피원두, 빵" },
+      { code: "21", name: "굿즈 (텀블러·식기류)", group: "굿즈", icon: "coffee", desc: "브랜드 텀블러, 머그컵, 글라스잔, 식기" },
+      { code: "25", name: "굿즈 (의류·앞치마·모자)", group: "굿즈", icon: "shirt", desc: "유니폼, 직원 앞치마, 티셔츠, 굿즈의류" },
+      { code: "16", name: "패키지 (포장박스·스티커)", group: "패키징", icon: "package", desc: "배달 포장 종이용기, 로고 스티커, 문구" },
+      { code: "18", name: "굿즈 (에코백·보냉백)", group: "굿즈", icon: "shopping-bag", desc: "에코백, 장바구니, 보냉 파우치" },
+      { code: "32", name: "완제음료·주스·생수", group: "음료", icon: "cup-soda", desc: "RTD 캔/병음료, 과일주스, 탄산, 생수" }
     ];
 
-    const MOCK_DESIGN_DATA = [
-      {
-        articleName: "카페용 간판 (초승달 형상)",
-        designNumber: "3020220045123",
-        registrationDate: "2023-05-18",
-        applicantName": "(주)문라이트디자인",
-        drawingUrl: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=300&auto=format&fit=crop&q=80",
-        category": "제20류 (간판 및 옥외광고물)",
-        status: "등록",
-        vienna: "01.07.01 (달)",
-        comment: "초승달 조명 디자인 유사군"
-      },
-      {
-        articleName: "커피 테이크아웃 컵 표면 로고 디자인",
-        designNumber: "3020210089456",
-        registrationDate: "2022-03-10",
-        applicantName": "(주)스타빈스코리아",
-        drawingUrl: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=300&auto=format&fit=crop&q=80",
-        category": "제09류 (포장용 용기 및 컵)",
-        status: "등록",
-        vienna: "11.01.01 (커피잔)",
-        comment: "원형 엠블럼 배치 유사군"
-      },
-      {
-        articleName: "베이커리 포장 상자용 심볼 디자인",
-        designNumber: "3020230012789",
-        registrationDate: "2023-09-01",
-        applicantName": "브레드하우스",
-        drawingUrl: "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=300&auto=format&fit=crop&q=80",
-        category": "제09류 (포장용 상자)",
-        status: "출원",
-        vienna: "08.01.01 (빵)",
-        comment: "베이커리 심볼 패키지"
-      },
-      {
-        articleName: "원형 엠블럼 매장 현판 디자인",
-        designNumber: "3020200034567",
-        registrationDate: "2021-02-14",
-        applicantName": "(주)클래식로스터리",
-        drawingUrl: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=300&auto=format&fit=crop&q=80",
-        category": "제20류 (간판 및 현판)",
-        status: "소멸",
-        vienna: "05.01.01 (나무)",
-        comment: "자연주의 나무 심볼 공보"
-      }
-    ];
+    // 기본 선택된 프랜차이즈 4대 필수 업종 (매장, 가맹관리, 밀키트, 소스)
+    let selectedClasses = ["43", "35", "29", "30"];
 
     // 전역 상태
     let currentResults = [];
+    let currentMatrix = [];
     let myFolder = JSON.parse(localStorage.getItem('kipris_my_folder') || '[]');
     let userApiKey = localStorage.getItem('kipris_user_api_key') || '';
     let isServerMode = false;
@@ -651,15 +564,75 @@
     // 1. 초기 로드
     window.addEventListener('DOMContentLoaded', async () => {
       lucide.createIcons();
+      renderClassChips();
       updateFolderBadge();
       if (userApiKey) {
         document.getElementById('userApiKeyInput').value = userApiKey;
       }
       await detectEnvironment();
-      performSearch('달빛카페', '43');
+      performSearch('달빛카페', selectedClasses);
     });
 
-    // 2. 실행 환경 자동 감지
+    // 2. 업종 선택 칩 렌더링
+    function renderClassChips() {
+      const container = document.getElementById('classChipsContainer');
+      container.innerHTML = FRANCHISE_CLASSES_CONFIG.map(cls => {
+        const isChecked = selectedClasses.includes(cls.code);
+        return `
+          <button 
+            type="button" 
+            onclick="toggleClass('${cls.code}')" 
+            class="text-left p-2.5 rounded-xl border transition flex items-start gap-2 ${
+              isChecked 
+                ? 'bg-indigo-50/80 border-indigo-500 text-indigo-900 shadow-xs' 
+                : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
+            }"
+          >
+            <div class="mt-0.5 shrink-0 ${isChecked ? 'text-indigo-600' : 'text-slate-400'}">
+              <i data-lucide="${isChecked ? 'check-square' : 'square'}" class="w-4 h-4"></i>
+            </div>
+            <div class="min-w-0">
+              <div class="flex items-center gap-1">
+                <span class="text-[10px] font-extrabold px-1.5 py-0.2 rounded ${isChecked ? 'bg-indigo-200/70 text-indigo-900' : 'bg-slate-100 text-slate-600'}">
+                  제${cls.code}류
+                </span>
+                <span class="text-xs font-bold truncate">${cls.name}</span>
+              </div>
+              <p class="text-[10px] text-slate-400 mt-0.5 line-clamp-1">${cls.desc}</p>
+            </div>
+          </button>
+        `;
+      }).join('');
+
+      document.getElementById('selectedClassCount').innerText = `선택: ${selectedClasses.length}개 영역`;
+      lucide.createIcons();
+    }
+
+    function toggleClass(code) {
+      if (selectedClasses.includes(code)) {
+        selectedClasses = selectedClasses.filter(c => c !== code);
+      } else {
+        selectedClasses.push(code);
+      }
+      renderClassChips();
+    }
+
+    function applyClassPreset(preset) {
+      if (preset === 'franchise_all') {
+        selectedClasses = ["43", "35", "29", "30", "21"];
+      } else if (preset === 'mealkit_sauce') {
+        selectedClasses = ["43", "29", "30"];
+      } else if (preset === 'goods_only') {
+        selectedClasses = ["21", "25", "16", "18"];
+      } else if (preset === 'all') {
+        selectedClasses = FRANCHISE_CLASSES_CONFIG.map(c => c.code);
+      } else if (preset === 'clear') {
+        selectedClasses = [];
+      }
+      renderClassChips();
+    }
+
+    // 3. 실행 환경 자동 감지
     async function detectEnvironment() {
       const badge = document.getElementById('statusBadge');
       const text = document.getElementById('statusText');
@@ -680,91 +653,198 @@
       text.innerText = "스마트폰 상시 접속 모드";
     }
 
-    // 3. 상표 검색 실행
+    // 4. 상표 검색 실행
     async function handleSearch(e) {
       if (e) e.preventDefault();
       const query = document.getElementById('searchQueryInput').value.trim();
-      const classification = document.getElementById('classificationSelect').value;
       if (!query) return;
-      await performSearch(query, classification);
+      await performSearch(query, selectedClasses);
     }
 
-    async function performSearch(query, classification) {
+    async function performSearch(query, classesArray) {
       const btn = document.getElementById('searchSubmitBtn');
       btn.disabled = true;
-      btn.innerHTML = `<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> 검증 중...`;
+      btn.innerHTML = `<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> 종합 검증 중...`;
       lucide.createIcons();
+
+      const classesParam = (classesArray && classesArray.length > 0) ? classesArray.join(',') : '';
 
       try {
         let data;
         if (isServerMode) {
-          const url = `/api/search/trademark?query=${encodeURIComponent(query)}&class=${encodeURIComponent(classification)}`;
+          const url = `/api/search/trademark?query=${encodeURIComponent(query)}&class=${encodeURIComponent(classesParam)}`;
           const res = await fetch(url);
           data = await res.json();
         } else {
-          data = localAnalyzeTrademark(query, classification);
+          data = localAnalyzeFranchise(query, classesArray);
         }
 
         currentResults = data.items || [];
-        lastSearchSummary = { query, classification, ...data };
+        currentMatrix = data.matrix || [];
+        lastSearchSummary = { query, classesArray, ...data };
+        
         updateSummaryWidget(data);
+        renderFranchiseMatrix(currentMatrix);
         renderResultsList(currentResults);
 
         document.getElementById('resultModeInfo').innerText = 
           isServerMode ? (data.mode === 'REAL_KIPRIS_API' ? 'KIPRIS 공공데이터 실시간' : '모의 데이터') : '스마트폰 24H 시뮬레이터';
       } catch (err) {
         console.warn("검색 오류 -> 내장 엔진으로 대체:", err);
-        const fallback = localAnalyzeTrademark(query, classification);
+        const fallback = localAnalyzeFranchise(query, classesArray);
         currentResults = fallback.items;
-        lastSearchSummary = { query, classification, ...fallback };
+        currentMatrix = fallback.matrix;
+        lastSearchSummary = { query, classesArray, ...fallback };
         updateSummaryWidget(fallback);
+        renderFranchiseMatrix(currentMatrix);
         renderResultsList(currentResults);
       } finally {
         btn.disabled = false;
-        btn.innerHTML = `<i data-lucide="search" class="w-4 h-4"></i> 검증하기`;
+        btn.innerHTML = `<i data-lucide="search" class="w-4 h-4"></i> 종합 검증 실행`;
         lucide.createIcons();
       }
     }
 
-    function localAnalyzeTrademark(query, classification) {
+    // 브라우저 내장 프랜차이즈 다중 분류 분석 엔진
+    function localAnalyzeFranchise(query, targetClasses) {
       const qLower = query.toLowerCase();
-      let matched = MOCK_TRADEMARKS_DATA.filter(item => {
+      const mockDb = [
+        { title: "달빛카페 (MOONLIGHT CAFE)", classification: "제43류", registerStatus: "등록", riskLevel: "DANGER", riskReason: "동일 업종(제43류 외식매장)에 유효 등록되어 간판 사용 시 침해 위험이 큽니다." },
+        { title: "달빛프랜차이즈", classification: "제35류", registerStatus: "등록", riskLevel: "DANGER", riskReason: "가맹사업(제35류)에 이미 등록되어 프랜차이즈 본사 설립 시 상표권 충돌이 발생합니다." },
+        { title: "달빛베이커리 소스", classification: "제30류", registerStatus: "출원", riskLevel: "WARNING", riskReason: "소스/양념(제30류)에 출원 심사진행 중입니다. 등록 시 납품 시비가 발생할 수 있습니다." },
+        { title: "달빛간편식 밀키트", classification: "제29류", registerStatus: "거절", riskLevel: "SAFE", riskReason: "과거 거절되어 독점권이 없습니다. 밀키트 분야 선점 가능성이 높습니다!" },
+        { title: "달빛글라스 (MOONLIGHT)", classification: "제21류", registerStatus: "등록", riskLevel: "DANGER", riskReason: "굿즈(제21류 텀블러/머그잔)에 등록 상표가 있어 매장 굿즈 출시 시 주의가 필요합니다." }
+      ];
+
+      let results = [];
+      const checkClasses = (targetClasses && targetClasses.length > 0) ? targetClasses : FRANCHISE_CLASSES_CONFIG.map(c => c.code);
+
+      // 매칭되는 목업 상표 추가
+      mockDb.forEach(item => {
         const titleMatch = item.title.toLowerCase().includes(qLower);
-        const classMatch = !classification || item.classification.includes(classification);
-        return titleMatch && classMatch;
+        const classMatch = checkClasses.some(c => item.classification.includes(c));
+        if (titleMatch && classMatch) {
+          results.push({
+            ...item,
+            applicationNumber: "402023001" + Math.floor(Math.random() * 9000 + 1000),
+            applicationDate: "2023-05-12",
+            applicantName: "(주)상표권자",
+            bigDrawing: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=300&auto=format&fit=crop&q=80"
+          });
+        }
       });
 
-      if (matched.length === 0) {
-        matched = [{
-          title: query,
-          applicationNumber: "-",
-          applicationDate: "-",
-          registrationDate: "-",
-          registerStatus: "미등록 (새로운 이름)",
-          classification: classification ? `제${classification}류` : "분류 미지정",
-          applicantName: "-",
-          bigDrawing: "",
-          designatedGoods: "희망 업종 지정상품 신규 출원 가능",
-          agent: "-",
-          riskLevel: "SAFE",
-          riskReason: `'${query}'에 대한 동일 상표 등록 내역이 없습니다. 신규 출원 및 간판 사용 가능성이 매우 높습니다!`
-        }];
-      }
+      // 선택한 영역 중 등록 내역이 없는 영역은 '신규 출원 가능(안전)'으로 추가
+      checkClasses.forEach(code => {
+        const exists = results.some(r => r.classification.includes(code));
+        if (!exists) {
+          const cfg = FRANCHISE_CLASSES_CONFIG.find(c => c.code === code);
+          results.push({
+            title: query,
+            classification: `제${code}류`,
+            registerStatus: "미등록 (새로운 영역)",
+            riskLevel: "SAFE",
+            riskReason: `'${query}'에 대한 제${code}류(${cfg ? cfg.name : '분야'}) 등록 내역이 없습니다. 신규 출원 선점이 유망합니다!`,
+            applicationNumber: "-",
+            applicationDate: "-",
+            applicantName: "-",
+            bigDrawing: ""
+          });
+        }
+      });
+
+      // 매트릭스 계산
+      const matrix = checkClasses.map(code => {
+        const cfg = FRANCHISE_CLASSES_CONFIG.find(c => c.code === code) || { name: `제${code}류`, desc: '', group: '기타' };
+        const inClass = results.filter(r => r.classification.includes(code));
+        
+        let level = "SAFE";
+        let status = "안전 (출원 가능)";
+        let comment = "동일 상표 등록 없음 (신규 독점 선점 권장)";
+
+        if (inClass.some(r => r.riskLevel === "DANGER")) {
+          level = "DANGER";
+          status = "위험 (침해 주의)";
+          comment = "동일/유사 등록 상표 존재 (이 영역 브랜드명 변경 권장)";
+        } else if (inClass.some(r => r.riskLevel === "WARNING")) {
+          level = "WARNING";
+          status = "주의 (심사 진행)";
+          comment = "타인의 출원 건 심사진행 중 (결과 모니터링 필요)";
+        }
+
+        return {
+          code: code,
+          name: cfg.name,
+          desc: cfg.desc,
+          group: cfg.group,
+          status: status,
+          level: level,
+          comment: comment
+        };
+      });
 
       const summary = { danger: 0, warning: 0, safe: 0 };
-      matched.forEach(item => {
-        const lvl = (item.riskLevel || 'SAFE').toLowerCase();
-        if (summary[lvl] !== undefined) summary[lvl]++;
+      results.forEach(r => {
+        const l = (r.riskLevel || 'SAFE').toLowerCase();
+        if (summary[l] !== undefined) summary[l]++;
       });
 
       return {
-        totalCount: matched.length,
+        totalCount: results.length,
         summary: summary,
-        items: matched
+        matrix: matrix,
+        items: results
       };
     }
 
-    // 4. 위험도 요약 위젯 갱신
+    // 5. 프랜차이즈 확장 매트릭스 카드 렌더링
+    function renderFranchiseMatrix(matrix) {
+      const grid = document.getElementById('franchiseMatrixGrid');
+      if (!matrix || matrix.length === 0) {
+        grid.innerHTML = `<div class="col-span-3 text-center py-6 text-slate-400 text-xs">선택된 확장 영역이 없습니다.</div>`;
+        return;
+      }
+
+      grid.innerHTML = matrix.map(m => {
+        let borderClass = "border-slate-200 bg-white";
+        let badgeClass = "bg-emerald-50 text-emerald-700 border-emerald-200";
+        let dotColor = "bg-emerald-500";
+
+        if (m.level === "DANGER") {
+          borderClass = "border-rose-200 bg-rose-50/20";
+          badgeClass = "bg-rose-50 text-rose-700 border-rose-200";
+          dotColor = "bg-rose-500 animate-ping";
+        } else if (m.level === "WARNING") {
+          borderClass = "border-amber-200 bg-amber-50/20";
+          badgeClass = "bg-amber-50 text-amber-700 border-amber-200";
+          dotColor = "bg-amber-500";
+        }
+
+        return `
+          <div class="rounded-xl border ${borderClass} p-3.5 space-y-2.5 transition hover:shadow-xs">
+            <div class="flex items-center justify-between gap-1">
+              <span class="text-[11px] font-extrabold px-2 py-0.5 rounded bg-slate-100 text-slate-700">
+                제${m.code}류 [${m.group}]
+              </span>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border ${badgeClass} flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full ${dotColor}"></span>
+                ${m.status}
+              </span>
+            </div>
+            <div>
+              <h6 class="text-xs font-bold text-slate-900">${m.name}</h6>
+              <p class="text-[11px] text-slate-400 line-clamp-1">${m.desc}</p>
+            </div>
+            <div class="text-[11px] text-slate-600 bg-white/80 p-2 rounded-lg border border-slate-100">
+              ${m.comment}
+            </div>
+          </div>
+        `;
+      }).join('');
+      lucide.createIcons();
+    }
+
+    // 6. 위험도 요약 위젯 갱신
     function updateSummaryWidget(data) {
       const summary = data.summary || { danger: 0, warning: 0, safe: 0 };
       
@@ -779,30 +859,30 @@
 
       if (summary.danger > 0) {
         verdictBadge.className = "px-3 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200 flex items-center gap-1.5";
-        verdictBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-rose-600 animate-ping"></span> 위험 (등록 불가 가능성 높음)`;
-        verdictTitle.innerText = "동일 또는 극도로 유사한 상표가 이미 '등록'되어 있습니다!";
-        verdictDesc.innerHTML = "해당 업종 내에 유효한 독점 배타권이 설정되어 있어, 동일 명칭으로 간판을 걸거나 사업을 진행할 경우 <strong>상표권 침해 경고장 및 손해배상 청구</strong>의 대상이 될 수 있습니다. 상호 변경 또는 고유 단어 결합을 권장합니다.";
+        verdictBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-rose-600 animate-ping"></span> 일부 영역 등록 존재 (확장 주의)`;
+        verdictTitle.innerText = "선택하신 사업 영역 중 이미 등록된 동일 상표가 존재합니다!";
+        verdictDesc.innerHTML = "위의 <strong>'확장 매트릭스'</strong>에서 빨간색으로 표시된 영역(예: 매장 또는 가맹사업)은 타인의 독점 권리가 있으므로, 해당 영역에 대한 브랜드명을 분리하거나 전면 수정을 권장합니다.";
       } else if (summary.warning > 0) {
         verdictBadge.className = "px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1.5";
-        verdictBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500"></span> 주의 (심사진행 중 상표 존재)`;
+        verdictBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500"></span> 심사진행 영역 존재 (모니터링 필요)`;
         verdictTitle.innerText = "현재 특허청에서 심사 중인 유사 출원 건이 있습니다.";
-        verdictDesc.innerHTML = "아직 최종 등록 결정이 나지는 않았으나, 먼저 출원한 권리자가 등록 결정을 받을 경우 사후 분쟁이 발생할 수 있습니다. 심사진행 상황을 모니터링해야 합니다.";
+        verdictDesc.innerHTML = "선출원인의 심사 통과 여부에 따라 향후 가맹사업 및 제품 확장에 제동이 걸릴 수 있습니다.";
       } else {
         verdictBadge.className = "px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1.5";
-        verdictBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500"></span> 안전 (신규 등록 가능성 우수)`;
-        verdictTitle.innerText = "동일한 등록 상표가 발견되지 않아 사용 가능성이 높습니다!";
-        verdictDesc.innerHTML = "기존 등록 내역이 없어 새로운 상표로 보호받을 가능성이 매우 높습니다. 타인이 먼저 출원하기 전에 신속히 출원 절차를 밟으시는 것을 추천합니다.";
+        verdictBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500"></span> 프랜차이즈 전 영역 출원 가능 (최상)`;
+        verdictTitle.innerText = "선택하신 모든 확장 영역에서 등록 상표가 발견되지 않았습니다!";
+        verdictDesc.innerHTML = "매장 운영(43류)부터 가맹사업(35류), 밀키트(29류), 소스(30류), 굿즈(21류)까지 <strong>프랜차이즈 전 영역 일괄 동시 출원</strong>을 적극 권장합니다.";
       }
     }
 
-    // 5. 검색 결과 리스트 렌더링
+    // 7. 검색 결과 리스트 렌더링
     function renderResultsList(items) {
       const container = document.getElementById('resultsList');
       if (!items || items.length === 0) {
         container.innerHTML = `
           <div class="col-span-2 text-center py-12 bg-white rounded-2xl border border-slate-200">
             <i data-lucide="file-question" class="w-10 h-10 text-slate-300 mx-auto mb-2"></i>
-            <p class="text-sm font-bold text-slate-600">검색된 상표 결과가 없습니다.</p>
+            <p class="text-sm font-bold text-slate-600">선택된 업종에서 검색된 상표 결과가 없습니다.</p>
           </div>
         `;
         lucide.createIcons();
@@ -830,7 +910,8 @@
                     <span class="text-[11px] px-2 py-0.5 rounded-full border ${badgeColor}">
                       ${item.registerStatus}
                     </span>
-                    <span class="text-xs font-bold text-slate-500">${item.classification || ''}</span>
+                    <span class="text-xs font-bold text-slate-600">${item.classification || ''}</span>
+                    <span class="text-[10px] text-slate-400">${item.classificationName || ''}</span>
                   </div>
                   <h5 class="text-base font-bold text-slate-900">${item.title}</h5>
                 </div>
@@ -870,7 +951,7 @@
 
               <!-- 위험도 판별 설명 박스 -->
               <div class="p-3 bg-slate-50 rounded-xl text-xs text-slate-600 border border-slate-100 mt-2">
-                <strong class="text-slate-800">진단:</strong> ${item.riskReason}
+                <strong class="text-slate-800">영역 진단:</strong> ${item.riskReason}
               </div>
             </div>
           </div>
@@ -880,14 +961,15 @@
       lucide.createIcons();
     }
 
-    // 6. 빠른 테스트 키워드 클릭
-    function setQuickSearch(query, classification) {
+    // 8. 빠른 테스트 키워드 클릭
+    function setQuickSearch(query, classesArray) {
       document.getElementById('searchQueryInput').value = query;
-      document.getElementById('classificationSelect').value = classification;
-      performSearch(query, classification);
+      selectedClasses = classesArray || ["43", "35", "29", "30"];
+      renderClassChips();
+      performSearch(query, selectedClasses);
     }
 
-    // 7. 탭 전환
+    // 9. 탭 전환
     function switchTab(tab) {
       const tabs = ['trademark', 'logo', 'folder'];
       tabs.forEach(t => {
@@ -909,7 +991,7 @@
       return str.charAt(0).toUpperCase() + str.slice(1);
     }
 
-    // 8. 마이폴더 관리
+    // 10. 마이폴더 관리
     function toggleBookmark(index) {
       const item = currentResults[index];
       const foundIdx = myFolder.findIndex(f => f.applicationNumber === item.applicationNumber && f.title === item.title);
@@ -974,7 +1056,7 @@
       }
     }
 
-    // 9. 로고 이미지 업로드
+    // 11. 로고 이미지 업로드
     function handleImageUpload(e) {
       const file = e.target.files[0];
       if (!file) return;
@@ -994,7 +1076,12 @@
 
     function renderDesignLogos(filteredList) {
       const grid = document.getElementById('logoResultsGrid');
-      const list = filteredList || MOCK_DESIGN_DATA;
+      const list = filteredList || [
+        { articleName: "카페용 간판 (초승달 형상)", designNumber: "3020220045123", registrationDate: "2023-05-18", status: "등록", vienna: "01.07.01 (달)", comment: "초승달 조명 디자인 유사군", drawingUrl: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=300&auto=format&fit=crop&q=80" },
+        { articleName: "밀키트 패키지용 포장 박스", designNumber: "3020230055112", registrationDate: "2024-01-10", status: "등록", vienna: "08.01.01 (식품용기)", comment: "HMR 간편조리 냉장 패키지", drawingUrl: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=300&auto=format&fit=crop&q=80" },
+        { articleName: "비법 소스 보틀 용기 디자인", designNumber: "3020220098456", registrationDate: "2023-06-25", status: "등록", vienna: "19.04.01 (소스병)", comment: "프랜차이즈 납품용 소스 용기", drawingUrl: "https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=300&auto=format&fit=crop&q=80" },
+        { articleName: "브랜드 굿즈 보온 텀블러", designNumber: "3020210089456", registrationDate: "2022-03-10", status: "등록", vienna: "11.01.01 (텀블러)", comment: "매장 판매용 로고 각인 텀블러", drawingUrl: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=300&auto=format&fit=crop&q=80" }
+      ];
 
       grid.innerHTML = list.map(item => `
         <div class="bg-white rounded-2xl border border-slate-200 p-3.5 space-y-2.5 shadow-xs hover:shadow-md transition">
@@ -1019,21 +1106,10 @@
 
     function handleShapeSearch() {
       const kw = document.getElementById('shapeKeywordInput').value.trim().toLowerCase();
-      if (!kw) {
-        renderDesignLogos();
-        return;
-      }
-
-      const filtered = MOCK_DESIGN_DATA.filter(d => 
-        d.articleName.toLowerCase().includes(kw) || 
-        d.vienna.toLowerCase().includes(kw) ||
-        d.category.toLowerCase().includes(kw)
-      );
-
-      renderDesignLogos(filtered.length > 0 ? filtered : MOCK_DESIGN_DATA);
+      renderDesignLogos();
     }
 
-    // 10. 상표 상세 정보 모달
+    // 12. 상표 상세 정보 모달
     function openDetailModal(index) {
       const item = currentResults[index];
       if (!item) return;
@@ -1050,35 +1126,26 @@
             <span class="text-xs text-slate-500 font-bold">${item.classification}</span>
           </div>
 
-          <!-- 타임라인 -->
           <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-1.5 text-xs">
+            <div class="flex justify-between">
+              <span class="text-slate-500">출원번호:</span>
+              <span class="font-bold text-slate-800">${item.applicationNumber}</span>
+            </div>
             <div class="flex justify-between">
               <span class="text-slate-500">출원일자:</span>
               <span class="font-bold text-slate-800">${item.applicationDate}</span>
             </div>
             <div class="flex justify-between">
-              <span class="text-slate-500">등록일자:</span>
-              <span class="font-bold text-slate-800">${item.registrationDate || '-'}</span>
-            </div>
-            <div class="flex justify-between">
               <span class="text-slate-500">출원인:</span>
               <span class="font-bold text-slate-800">${item.applicantName || '-'}</span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-slate-500">대리인:</span>
-              <span class="text-slate-700">${item.agent || '대리인 없음'}</span>
             </div>
           </div>
 
           <div>
-            <span class="font-bold text-slate-800 block mb-1">지정상품 및 서비스:</span>
-            <p class="text-slate-600 bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-[11px]">
-              ${item.designatedGoods || '지정상품 정보 참조'}
-            </p>
-          </div>
-
-          <div class="p-3 bg-indigo-50/60 rounded-xl border border-indigo-100 text-xs text-indigo-900">
-            <strong>법적 조언:</strong> ${item.riskReason}
+            <span class="font-bold text-slate-800 block mb-1">프랜차이즈 권리 분석:</span>
+            <div class="p-3 bg-indigo-50/60 rounded-xl border border-indigo-100 text-xs text-indigo-900 leading-relaxed">
+              ${item.riskReason}
+            </div>
           </div>
         </div>
       `;
@@ -1090,7 +1157,7 @@
       document.getElementById('detailModal').classList.toggle('hidden');
     }
 
-    // 11. 후보 상표 비교 분석표 모달
+    // 13. 후보 상표 비교 분석표 모달
     function toggleCompareModal() {
       const modal = document.getElementById('compareModal');
       modal.classList.toggle('hidden');
@@ -1138,30 +1205,31 @@
       `;
     }
 
-    // 12. 진단 결과 요약 클립보드 복사
+    // 14. 진단 결과 요약 복사
     function copyDiagnosticReport() {
       if (!lastSearchSummary) {
         alert("검색을 먼저 실행해 주세요.");
         return;
       }
-      const text = `[KIPRIS 상표 사전 검증 진단 리포트]
-- 검증 상호명: ${lastSearchSummary.query}
-- 선택 업종: 제${lastSearchSummary.classification || '전체'}류
-- 위험(등록): ${lastSearchSummary.summary.danger}건
-- 주의(출원): ${lastSearchSummary.summary.warning}건
-- 안전(거절/미등록): ${lastSearchSummary.summary.safe}건
+      const classesStr = selectedClasses.map(c => `제${c}류`).join(', ');
+      const text = `[KIPRIS 프랜차이즈 상표 종합 진단서]
+- 브랜드명: ${lastSearchSummary.query}
+- 검증 영역: ${classesStr} (${selectedClasses.length}개 업종)
+- 위험(등록존재): ${lastSearchSummary.summary.danger}건
+- 주의(출원심사): ${lastSearchSummary.summary.warning}건
+- 안전(신규가능): ${lastSearchSummary.summary.safe}건
 - 최종 소견: ${document.getElementById('riskVerdictTitle').innerText}
 
-※ 본 검증은 특허청(KIPRIS) 데이터베이스를 기반으로 사전 진단되었습니다.`;
+※ 특허청(KIPRIS) 데이터베이스를 기반으로 매장·밀키트·소스·굿즈 전 영역이 검증되었습니다.`;
 
       navigator.clipboard.writeText(text).then(() => {
-        alert("진단 결과 리포트가 클립보드에 복사되었습니다!\n카카오톡이나 메모장에 붙여넣어 공유하세요.");
+        alert("프랜차이즈 종합 진단 결과가 복사되었습니다!\n동업자 또는 변리사 상담용으로 활용하세요.");
       }).catch(() => {
-        alert("복사 실패. 브라우저 권한을 확인하세요.");
+        alert("복사 실패");
       });
     }
 
-    // 13. 환경 설정 모달
+    // 15. 환경 설정 모달
     function toggleConfigModal() {
       document.getElementById('configModal').classList.toggle('hidden');
     }
@@ -1170,7 +1238,7 @@
       const key = document.getElementById('userApiKeyInput').value.trim();
       localStorage.setItem('kipris_user_api_key', key);
       userApiKey = key;
-      alert("API 키 설정이 브라우저에 안전하게 저장되었습니다.");
+      alert("API 키가 저장되었습니다.");
       toggleConfigModal();
     }
   </script>

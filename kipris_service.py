@@ -3,10 +3,10 @@
 KIPRIS 지식재산정보 연동 서비스 모듈 (kipris_service.py)
 ----------------------------------------------------------------------
 이 모듈은 특허청/공공데이터포털의 KIPRIS Open API(상표 및 디자인 정보)와 통신하거나,
-초보자 교육 및 테스트를 위한 모의(Mock) 데이터를 생성하여 반환합니다.
+프랜차이즈 창업(밀키트, 소스, 굿즈 확장)에 특화된 다중 업종 복합 검증 모의 데이터를 반환합니다.
 
 [주요 기능]
-1. search_trademark: 가게명(문자상표) 검색 및 위험도 판별
+1. search_trademark: 복수 상품분류(NICE 분류) 멀티 선택 지원 상표 검색 및 확장성 진단
 2. search_design: 로고마크 및 간판 디자인(디자인권) 검색
 3. get_vienna_recommendations: 로고 키워드 기반 비엔나 도형코드 자동 추천
 """
@@ -17,30 +17,26 @@ import requests
 from config import KIPRIS_API_KEY, USE_MOCK, KIPRIS_TRADEMARK_URL, KIPRIS_DESIGN_URL
 
 # ====================================================================
-# [비엔나 도형분류 사전]
-# 로고 이미지의 형상 특징(동물, 별, 달, 커피 등)을 특허청 비엔나 코드로 매핑
+# [프랜차이즈 확장 분류 표준 사전]
+# 외식 창업부터 밀키트, 소스, 굿즈까지의 NICE 상품분류 정보
 # ====================================================================
-VIENNA_CATEGORY_MAP = {
-    "달": {"code": "01.07.01", "name": "초승달, 반달, 달의 형상", "description": "달 모양을 형상화한 로고 및 심볼마크"},
-    "별": {"code": "01.01.01", "name": "별, 항성, 광채", "description": "다각별 및 반짝이는 별빛 형태의 도형"},
-    "태양": {"code": "01.03.01", "name": "태양, 일출", "description": "해, 햇살, 태양을 모티브로 한 로고"},
-    "커피": {"code": "11.01.01", "name": "찻잔, 커피잔, 머그잔", "description": "따뜻한 음료 또는 증기가 피어오르는 컵 형상"},
-    "빵": {"code": "08.01.01", "name": "식빵, 바게트, 크루아상, 제과류", "description": "베이커리 및 디저트 형상"},
-    "나무": {"code": "05.01.01", "name": "나무, 숲, 가지", "description": "자연주의, 친환경을 상징하는 나무 형상"},
-    "꽃": {"code": "05.05.01", "name": "꽃, 꽃잎, 부케", "description": "꽃이나 식물의 꽃잎을 모티브로 한 심볼"},
-    "왕관": {"code": "24.09.01", "name": "왕관, 티아라", "description": "권위, 프리미엄을 상징하는 왕관 모양"},
-    "고양이": {"code": "03.01.08", "name": "고양이, 고양이과 동물", "description": "귀여운 고양이 및 반려묘 캐릭터"},
-    "강아지": {"code": "03.01.09", "name": "개, 강아지, 늑대", "description": "반려견 및 친근한 강아지 심볼"},
-    "물고기": {"code": "03.09.01", "name": "어류, 물고기, 수산물", "description": "수산물 및 바다 생물 모티브 형상"},
-    "하트": {"code": "02.09.01", "name": "심장, 하트 모양", "description": "사랑, 호의를 표현하는 하트 심볼"},
-    "원": {"code": "26.01.01", "name": "원, 동심원, 원반", "description": "안정감을 주는 원형 엠블럼 형태"},
-    "삼각형": {"code": "26.03.01", "name": "삼각형, 피라미드", "description": "역동성과 전진을 상징하는 삼각 형상"}
+FRANCHISE_CLASSES = {
+    "43": {"name": "외식·카페 매장", "desc": "음식점업, 카페업, 제과점업, 주점업 (프랜차이즈 본점/가맹점 매장 운영)", "group": "기본 매장"},
+    "35": {"name": "가맹사업·유통·쇼핑몰", "desc": "프랜차이즈 가맹관리업, 식음료 도소매업, 온라인 쇼핑몰 운영", "group": "프랜차이즈 유통"},
+    "29": {"name": "밀키트·육류가공식품", "desc": "육류, 가공식품, 냉동 간편조리식품, HMR 밀키트, 국/찌개류", "group": "간편식·밀키트"},
+    "30": {"name": "소스·양념·원두·제과", "desc": "비법 소스류, 시즈닝, 복합조미료, 양념장, 커피원두, 빵/과자", "group": "소스·양념"},
+    "21": {"name": "굿즈 (텀블러·식기류)", "desc": "브랜드 텀블러, 머그컵, 글라스잔, 조리용 식기, 주방용기", "group": "브랜드 굿즈"},
+    "25": {"name": "굿즈 (의류·앞치마·유니폼)", "desc": "직원 유니폼, 앞치마, 티셔츠, 모자, 에이프런", "group": "브랜드 굿즈"},
+    "16": {"name": "굿즈 (포장용기·문구·스티커)", "desc": "배달 포장용 종이박스, 포장백, 로고 스티커, 브랜드 다이어리/볼펜", "group": "브랜드 굿즈"},
+    "18": {"name": "굿즈 (에코백·가방·파우치)", "desc": "브랜드 에코백, 캔버스 가방, 보냉백, 파우치", "group": "브랜드 굿즈"},
+    "32": {"name": "완제음료·생수·주스", "desc": "RTD 캔/보틀 완제음료, 과일주스, 탄산음료, 생수", "group": "음료·패키지"}
 }
 
 # ====================================================================
-# [교육용 샘플] 실감나는 모의(Mock) 상표 데이터베이스
+# [교육용 샘플] 프랜차이즈 확장 영역까지 포괄하는 모의(Mock) 상표 데이터
 # ====================================================================
 SAMPLE_TRADEMARKS = [
+    # 1. 외식업 (제43류)
     {
         "title": "달빛카페 (MOONLIGHT CAFE)",
         "applicationNumber": "4020220194821",
@@ -50,50 +46,79 @@ SAMPLE_TRADEMARKS = [
         "classification": "제43류",
         "classificationName": "음식점업, 카페업, 제과점업",
         "applicantName": "(주)달빛에프앤비",
-        "bigDrawing": "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=400&auto=format&fit=crop&q=80",
-        "viennaCode": "01.07.01",
-        "viennaDescription": "초승달 또는 반달",
+        "bigDrawing": "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=300&auto=format&fit=crop&q=80",
         "designatedGoods": "커피전문점업, 디저트카페업, 테이크아웃커피점업, 제과점업",
-        "agent": "특허법인 한빛 (담당변리사 홍길동)",
+        "agent": "특허법인 한빛",
         "riskLevel": "DANGER",
-        "riskReason": "동일 업종(제43류)에 이미 '등록'되어 있어 동일/유사 상호 사용 시 상표권 침해 소송 위험이 매우 높습니다."
+        "riskReason": "동일 업종(제43류)에 이미 '등록'되어 있어 매장 간판 사용 시 상표권 침해 위험이 큽니다."
     },
+    # 2. 가맹사업 및 유통 (제35류)
     {
-        "title": "달빛베이커리",
+        "title": "달빛프랜차이즈",
+        "applicationNumber": "4020230045678",
+        "applicationDate": "2023-03-20",
+        "registrationDate": "2024-04-15",
+        "registerStatus": "등록",
+        "classification": "제35류",
+        "classificationName": "프랜차이즈 가맹사업경영업, 식음료 도소매업",
+        "applicantName": "(주)달빛에프앤비",
+        "bigDrawing": "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=300&auto=format&fit=crop&q=80",
+        "designatedGoods": "프랜차이즈 가맹사업경영업, 식음료 체인점 운영업, 가맹점 지원업",
+        "agent": "특허법인 한빛",
+        "riskLevel": "DANGER",
+        "riskReason": "가맹사업 및 유통(제35류)에 이미 등록되어 프랜차이즈 본사 설립 시 상표권 충돌이 발생합니다."
+    },
+    # 3. 소스 및 양념 (제30류) - 출원 심사진행 중 예시
+    {
+        "title": "달빛베이커리 소스",
         "applicationNumber": "4020230081234",
         "applicationDate": "2023-04-10",
         "registrationDate": "-",
         "registerStatus": "출원",
         "classification": "제30류",
-        "classificationName": "빵, 과자, 케이크, 제과",
+        "classificationName": "소스류, 시즈닝, 제과",
         "applicantName": "홍길동 (개인사업자)",
-        "bigDrawing": "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&auto=format&fit=crop&q=80",
-        "viennaCode": "01.07.06",
-        "viennaDescription": "달과 풍경",
-        "designatedGoods": "단팥빵, 크루아상, 조각케이크, 쿠키, 식빵",
+        "bigDrawing": "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=300&auto=format&fit=crop&q=80",
+        "designatedGoods": "복합조미료, 디저트용 시럽, 빵용 소스, 케이크, 식빵",
         "agent": "본인 직접 출원",
         "riskLevel": "WARNING",
-        "riskReason": "현재 심사진행(출원) 중인 상표입니다. 등록 결정 시 향후 분쟁 소지가 있으니 주시해야 합니다."
+        "riskReason": "소스/제과(제30류)에 출원 심사진행 중입니다. 등록 결정 시 소스 납품 시비가 생길 수 있습니다."
     },
+    # 4. 밀키트 및 간편조리식품 (제29류) - 거절된 예시 (안전)
     {
-        "title": "달빛식당",
+        "title": "달빛간편식 밀키트",
         "applicationNumber": "4020190012984",
         "applicationDate": "2019-01-22",
         "registrationDate": "-",
         "registerStatus": "거절",
-        "classification": "제43류",
-        "classificationName": "일반한식점업",
+        "classification": "제29류",
+        "classificationName": "간편조리식품, 냉동 가공육, 국/탕류",
         "applicantName": "김철수",
-        "bigDrawing": "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&auto=format&fit=crop&q=80",
-        "viennaCode": "",
-        "viennaDescription": "문자만 존재",
-        "designatedGoods": "한식점업, 백반전문점업",
+        "bigDrawing": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=300&auto=format&fit=crop&q=80",
+        "designatedGoods": "밀키트(간편조리세트), 조리된 국류, 가공된 육류",
         "agent": "대리인 없음",
         "riskLevel": "SAFE",
-        "riskReason": "과거에 등록 거절된 이력이 있습니다. 독점 권리자가 존재하지 않으므로 사용 가능성이 비교적 높습니다."
+        "riskReason": "과거 거절되어 현재 독점 권리자가 없습니다. 밀키트 분야로 신규 출원 선점 가능성이 높습니다!"
     },
+    # 5. 브랜드 굿즈 텀블러/머그잔 (제21류) - 등록된 상표 예시
     {
-        "title": "골든스타 로스팅 (GOLDEN STAR)",
+        "title": "달빛글라스 (MOONLIGHT)",
+        "applicationNumber": "4020200054321",
+        "applicationDate": "2020-05-18",
+        "registrationDate": "2021-08-30",
+        "registerStatus": "등록",
+        "classification": "제21류",
+        "classificationName": "텀블러, 머그컵, 유리식기류",
+        "applicantName": "(주)문라이트키친",
+        "bigDrawing": "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=300&auto=format&fit=crop&q=80",
+        "designatedGoods": "휴대용 텀블러, 커피 머그잔, 유리컵, 세라믹 식기",
+        "agent": "특허법인 세종",
+        "riskLevel": "DANGER",
+        "riskReason": "굿즈(제21류) 텀블러/머그잔에 이미 타사가 등록을 마쳤습니다. 매장 굿즈 출시 시 주의해야 합니다."
+    },
+    # 6. 브랜드 굿즈 의류/앞치마 (제25류) - 미등록/안전 예시
+    {
+        "title": "골든스타 로스팅",
         "applicationNumber": "4020180054321",
         "applicationDate": "2018-05-18",
         "registrationDate": "2019-08-30",
@@ -101,130 +126,123 @@ SAMPLE_TRADEMARKS = [
         "classification": "제43류",
         "classificationName": "커피전문점업",
         "applicantName": "(주)골든글로벌",
-        "bigDrawing": "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&auto=format&fit=crop&q=80",
-        "viennaCode": "01.01.01",
-        "viennaDescription": "별, 항성",
-        "designatedGoods": "원두커피전문점, 핸드드립전문점",
+        "bigDrawing": "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=300&auto=format&fit=crop&q=80",
+        "designatedGoods": "원두커피전문점",
         "agent": "태평양특허법률사무소",
         "riskLevel": "SAFE",
-        "riskReason": "과거 등록되었으나 갱신료 미납 등으로 권리가 소멸(말소)되었습니다. 현재 유효한 독점 권리는 없습니다."
-    },
-    {
-        "title": "바다향기 횟집",
-        "applicationNumber": "4020210034112",
-        "applicationDate": "2021-03-05",
-        "registrationDate": "2022-04-12",
-        "registerStatus": "등록",
-        "classification": "제43류",
-        "classificationName": "수산물요리전문점업",
-        "applicantName": "이영희",
-        "bigDrawing": "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?w=400&auto=format&fit=crop&q=80",
-        "viennaCode": "03.09.01",
-        "viennaDescription": "어류, 물고기",
-        "designatedGoods": "생선회전문식당업, 해산물요리전문점업",
-        "agent": "특허법인 세종",
-        "riskLevel": "DANGER",
-        "riskReason": "동일 업종에 등록되어 권리자가 영업 중인 상표입니다."
-    },
-    {
-        "title": "숲속의 오븐",
-        "applicationNumber": "4020200155231",
-        "applicationDate": "2020-10-12",
-        "registrationDate": "2021-12-05",
-        "registerStatus": "등록",
-        "classification": "제43류",
-        "classificationName": "디저트카페, 제과점업",
-        "applicantName": "(주)그린테이블",
-        "bigDrawing": "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400&auto=format&fit=crop&q=80",
-        "viennaCode": "05.01.01",
-        "viennaDescription": "나무, 숲",
-        "designatedGoods": "유기농빵집업, 숲카페업",
-        "agent": "정진특허법률사무소",
-        "riskLevel": "DANGER",
-        "riskReason": "유효하게 등록된 상표입니다."
+        "riskReason": "과거 등록되었으나 권리가 소멸되었습니다."
     }
 ]
 
-# ====================================================================
-# [교육용 샘플] 등록 디자인 및 로고 공보 데이터베이스 (KIPRIS 디자인정보)
-# ====================================================================
+# 디자인 샘플
 SAMPLE_DESIGNS = [
     {
         "articleName": "카페용 간판 (초승달 형상)",
         "designNumber": "3020220045123",
         "registrationDate": "2023-05-18",
         "applicantName": "(주)문라이트디자인",
-        "drawingUrl": "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=400&auto=format&fit=crop&q=80",
+        "drawingUrl": "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=300&auto=format&fit=crop&q=80",
         "category": "제20류 (간판 및 옥외광고물)",
-        "shapeTags": ["달", "원", "네온사인"],
-        "registerStatus": "등록",
-        "similarityScore": "92%",
-        "similarityLevel": "HIGH",
-        "comment": "초승달 외곽선 및 조명 배치 디자인이 매우 유사합니다. 간판 제작 시 모방 시비 주의가 필요합니다."
+        "status": "등록",
+        "vienna": "01.07.01 (달)",
+        "comment": "초승달 조명 디자인 유사군"
     },
     {
-        "articleName": "커피 테이크아웃 컵 표면 로고 디자인",
+        "articleName": "밀키트 패키지용 포장 박스 디자인",
+        "designNumber": "3020230055112",
+        "registrationDate": "2024-01-10",
+        "applicantName": "(주)신선키트",
+        "drawingUrl": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=300&auto=format&fit=crop&q=80",
+        "category": "제09류 (식품 포장 상자)",
+        "status": "등록",
+        "vienna": "08.01.01 (식품용기)",
+        "comment": "간편조리 밀키트 냉장 패키지 디자인 공보"
+    },
+    {
+        "articleName": "시그니처 비법 소스 보틀 용기 디자인",
+        "designNumber": "3020220098456",
+        "registrationDate": "2023-06-25",
+        "applicantName": "(주)맛있는소스",
+        "drawingUrl": "https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=300&auto=format&fit=crop&q=80",
+        "category": "제09류 (유리병/소스용기)",
+        "status": "등록",
+        "vienna": "19.04.01 (병/용기)",
+        "comment": "프랜차이즈 납품용 소스 병 디자인"
+    },
+    {
+        "articleName": "브랜드 굿즈 보온 텀블러 디자인",
         "designNumber": "3020210089456",
         "registrationDate": "2022-03-10",
         "applicantName": "(주)스타빈스코리아",
-        "drawingUrl": "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&auto=format&fit=crop&q=80",
-        "category": "제09류 (포장용 용기 및 컵)",
-        "shapeTags": ["커피", "원", "별"],
-        "registerStatus": "등록",
-        "similarityScore": "78%",
-        "similarityLevel": "MEDIUM",
-        "comment": "컵 홀더 및 표면의 원형 엠블럼 구도가 유사군에 속합니다."
-    },
-    {
-        "articleName": "베이커리 포장 상자용 심볼 디자인",
-        "designNumber": "3020230012789",
-        "registrationDate": "2023-09-01",
-        "applicantName": "브레드하우스",
-        "drawingUrl": "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&auto=format&fit=crop&q=80",
-        "category": "제09류 (포장용 상자)",
-        "shapeTags": ["빵", "집", "갈색"],
-        "registerStatus": "등록",
-        "similarityScore": "65%",
-        "similarityLevel": "LOW",
-        "comment": "빵 형상의 모티브를 활용한 패키지 디자인 공보입니다."
-    },
-    {
-        "articleName": "원형 엠블럼 형태의 매장 입구 현판",
-        "designNumber": "3020200034567",
-        "registrationDate": "2021-02-14",
-        "applicantName": "(주)클래식로스터리",
-        "drawingUrl": "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400&auto=format&fit=crop&q=80",
-        "category": "제20류 (간판 및 현판)",
-        "shapeTags": ["나무", "원", "자연"],
-        "registerStatus": "소멸",
-        "similarityScore": "54%",
-        "similarityLevel": "SAFE",
-        "comment": "나무 심볼과 원형 테두리를 조합한 디자인으로, 현재는 등록 권리가 소멸되었습니다."
+        "drawingUrl": "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=300&auto=format&fit=crop&q=80",
+        "category": "제07류 (휴대용 보온병)",
+        "status": "등록",
+        "vienna": "11.01.01 (커피잔)",
+        "comment": "매장 판매용 로고 각인 텀블러"
     }
 ]
 
 
-def search_trademark(search_query: str, classification_code: str = "") -> dict:
+def search_trademark(search_query: str, classification_codes: str = "") -> dict:
     """
-    상표(가게명)를 검색하고 위험도를 분석하여 반환하는 함수입니다.
+    상표(가게명)를 검색하고, 프랜차이즈 확장 영역별(멀티 선택된 상품분류들)로 종합 위험도를 분석합니다.
+
+    :param search_query: 사용자가 입력한 검색 가게명 (예: '달빛카페')
+    :param classification_codes: 콤마로 구분된 복수 상품분류 코드 (예: '43,35,29,30,21')
+    :return: 종합 결과, 분류별 매트릭스 분석표, 위험도 통계
     """
     search_query = search_query.strip()
     if not search_query:
-        return {"items": [], "totalCount": 0, "summary": {"danger": 0, "warning": 0, "safe": 0}}
+        return {
+            "items": [], 
+            "totalCount": 0, 
+            "summary": {"danger": 0, "warning": 0, "safe": 0},
+            "matrix": []
+        }
 
-    # 1. 모의 데이터 모드이거나 API 키가 설정되지 않은 경우 샘플 데이터에서 필터링
+    # 선택된 분류 리스트화 (빈 문자열이면 전체)
+    target_classes = [c.strip() for c in classification_codes.split(",") if c.strip()]
+
+    # 1. 모의 데이터 모드이거나 API 키가 설정되지 않은 경우
     if USE_MOCK or not KIPRIS_API_KEY or KIPRIS_API_KEY == "your_kipris_api_key_here":
         results = []
         query_lower = search_query.lower()
 
-        # 검색어가 포함된 상표들을 추출합니다.
+        # 샘플 중에서 검색어가 일치하거나 유사한 항목 추출
         for item in SAMPLE_TRADEMARKS:
             title_match = (query_lower in item["title"].lower())
-            class_match = (not classification_code or classification_code in item["classification"])
+            
+            # 분류 필터: target_classes가 지정된 경우 해당 분류 중 하나라도 매칭되면 포함
+            class_match = True
+            if target_classes:
+                class_match = any(f"제{code}류" in item["classification"] or code in item["classification"] for code in target_classes)
+
             if title_match and class_match:
                 results.append(item)
 
-        # 검색어가 샘플에 없을 때 신규 미등록 상표로 간주하여 가이드 생성
+        # 사용자가 선택한 확장 분류군 중 샘플에 없는 분류에 대해 신규 출원 가능 여부(안전) 항목 생성
+        if target_classes:
+            for code in target_classes:
+                has_item_in_class = any(code in r.get("classification", "") for r in results)
+                if not has_item_in_class:
+                    cls_info = FRANCHISE_CLASSES.get(code, {"name": f"제{code}류", "desc": "확장 분야", "group": "기타"})
+                    results.append({
+                        "title": f"{search_query}",
+                        "applicationNumber": "-",
+                        "applicationDate": "-",
+                        "registrationDate": "-",
+                        "registerStatus": "미등록 (새로운 영역)",
+                        "classification": f"제{code}류",
+                        "classificationName": f"{cls_info['name']} ({cls_info['desc']})",
+                        "applicantName": "-",
+                        "bigDrawing": "",
+                        "designatedGoods": cls_info["desc"],
+                        "agent": "-",
+                        "riskLevel": "SAFE",
+                        "riskReason": f"'{search_query}'에 대한 제{code}류({cls_info['name']}) 등록 내역이 없습니다. 신규 출원 및 프랜차이즈 독점 권리 확보가 매우 유망합니다!"
+                    })
+
+        # 고정 샘플에도 없고 선택 분류도 없을 때 기본 신규 항목 생성
         if not results:
             results.append({
                 "title": f"{search_query}",
@@ -232,16 +250,14 @@ def search_trademark(search_query: str, classification_code: str = "") -> dict:
                 "applicationDate": "-",
                 "registrationDate": "-",
                 "registerStatus": "미등록 (새로운 이름)",
-                "classification": f"제{classification_code or '43'}류" if classification_code else "분류 미지정",
-                "classificationName": "신규 출원 가능 대상",
+                "classification": "전체 분류",
+                "classificationName": "신규 프랜차이즈 출원 가능 대상",
                 "applicantName": "-",
                 "bigDrawing": "",
-                "viennaCode": "",
-                "viennaDescription": "-",
-                "designatedGoods": "희망 업종 지정상품 출원 가능",
+                "designatedGoods": "외식업 및 프랜차이즈 굿즈/밀키트 전 영역",
                 "agent": "-",
                 "riskLevel": "SAFE",
-                "riskReason": f"'{search_query}'에 대한 동일 상표 등록 내역이 발견되지 않았습니다. 신규 상표 출원 및 간판 사용 가능성이 매우 높습니다!"
+                "riskReason": f"'{search_query}'에 대한 등록 내역이 전혀 발견되지 않았습니다. 프랜차이즈 본사 및 가맹사업 출원을 적극 권장합니다!"
             })
 
         # 통계 집계
@@ -251,79 +267,88 @@ def search_trademark(search_query: str, classification_code: str = "") -> dict:
             if level in summary:
                 summary[level] += 1
 
+        # 프랜차이즈 확장 매트릭스(Matrix) 생성
+        matrix = build_franchise_matrix(results, target_classes)
+
         return {
             "mode": "MOCK_SIMULATION",
             "searchQuery": search_query,
+            "targetClasses": target_classes,
             "totalCount": len(results),
             "summary": summary,
+            "matrix": matrix,
             "items": results
         }
 
     # 2. 실제 KIPRIS Open API 호출 모드
     try:
-        params = {
-            "serviceKey": KIPRIS_API_KEY,
-            "searchString": search_query,
-            "numOfRows": 30,
-            "pageNo": 1
-        }
-        if classification_code:
-            params["productClassification"] = classification_code
-
-        response = requests.get(KIPRIS_TRADEMARK_URL, params=params, timeout=10)
-        response.encoding = 'utf-8'
-
-        root = ET.fromstring(response.text)
         items = []
         summary = {"danger": 0, "warning": 0, "safe": 0}
 
-        for item_node in root.findall(".//item"):
-            title = item_node.findtext("title", "").strip()
-            app_num = item_node.findtext("applicationNumber", "-").strip()
-            app_date = item_node.findtext("applicationDate", "-").strip()
-            reg_date = item_node.findtext("registrationDate", "-").strip()
-            reg_status = item_node.findtext("registerStatus", "미상").strip()
-            class_code = item_node.findtext("classificationCode", "").strip()
-            applicant = item_node.findtext("applicantName", "-").strip()
-            drawing_url = item_node.findtext("bigDrawing", "").strip()
-            vienna = item_node.findtext("viennaCode", "").strip()
+        # KIPRIS API는 분류별로 각각 질의하거나 대표 질의 수행
+        query_classes = target_classes if target_classes else [""]
+        for c_code in query_classes:
+            params = {
+                "serviceKey": KIPRIS_API_KEY,
+                "searchString": search_query,
+                "numOfRows": 20,
+                "pageNo": 1
+            }
+            if c_code:
+                params["productClassification"] = c_code
 
-            if "등록" in reg_status:
-                risk_level = "DANGER"
-                risk_reason = "특허청에 유효하게 등록된 상표입니다. 무단 사용 시 상표권 침해 위험이 있습니다."
-                summary["danger"] += 1
-            elif any(s in reg_status for s in ["출원", "공고", "심사"]):
-                risk_level = "WARNING"
-                risk_reason = "심사가 진행 중인 상표입니다. 등록 결정 시 분쟁 대상이 될 수 있습니다."
-                summary["warning"] += 1
-            else:
-                risk_level = "SAFE"
-                risk_reason = f"상태({reg_status})로 인해 현재 배타적 독점권이 없거나 소멸된 상태입니다."
-                summary["safe"] += 1
+            res = requests.get(KIPRIS_TRADEMARK_URL, params=params, timeout=8)
+            res.encoding = 'utf-8'
+            root = ET.fromstring(res.text)
 
-            items.append({
-                "title": title,
-                "applicationNumber": app_num,
-                "applicationDate": app_date,
-                "registrationDate": reg_date,
-                "registerStatus": reg_status,
-                "classification": f"제{class_code}류" if class_code else "-",
-                "classificationName": "",
-                "applicantName": applicant,
-                "bigDrawing": drawing_url,
-                "viennaCode": vienna,
-                "viennaDescription": "",
-                "designatedGoods": "KIPRIS 상세공보 참조",
-                "agent": "KIPRIS 상세공보 참조",
-                "riskLevel": risk_level,
-                "riskReason": risk_reason
-            })
+            for item_node in root.findall(".//item"):
+                title = item_node.findtext("title", "").strip()
+                app_num = item_node.findtext("applicationNumber", "-").strip()
+                app_date = item_node.findtext("applicationDate", "-").strip()
+                reg_date = item_node.findtext("registrationDate", "-").strip()
+                reg_status = item_node.findtext("registerStatus", "미상").strip()
+                class_code = item_node.findtext("classificationCode", c_code).strip()
+                applicant = item_node.findtext("applicantName", "-").strip()
+                drawing_url = item_node.findtext("bigDrawing", "").strip()
+
+                if "등록" in reg_status:
+                    risk_level = "DANGER"
+                    risk_reason = "유효하게 등록된 상표입니다. 무단 사용 시 상표권 침해 위험이 큽니다."
+                    summary["danger"] += 1
+                elif any(s in reg_status for s in ["출원", "공고", "심사"]):
+                    risk_level = "WARNING"
+                    risk_reason = "심사진행 중인 상표입니다. 등록 결정 시 분쟁 대상이 될 수 있습니다."
+                    summary["warning"] += 1
+                else:
+                    risk_level = "SAFE"
+                    risk_reason = "과거 거절/소멸되어 현재 독점 권리가 없는 상태입니다."
+                    summary["safe"] += 1
+
+                items.append({
+                    "title": title,
+                    "applicationNumber": app_num,
+                    "applicationDate": app_date,
+                    "registrationDate": reg_date,
+                    "registerStatus": reg_status,
+                    "classification": f"제{class_code}류",
+                    "classificationName": FRANCHISE_CLASSES.get(class_code, {}).get("name", "지정상품"),
+                    "applicantName": applicant,
+                    "bigDrawing": drawing_url,
+                    "designatedGoods": "KIPRIS 공보 참조",
+                    "agent": "KIPRIS 공보 참조",
+                    "riskLevel": risk_level,
+                    "riskReason": risk_reason
+                })
+
+        matrix = build_franchise_matrix(items, target_classes)
 
         return {
             "mode": "REAL_KIPRIS_API",
             "searchQuery": search_query,
+            "targetClasses": target_classes,
             "totalCount": len(items),
             "summary": summary,
+            "matrix": matrix,
             "items": items
         }
 
@@ -332,115 +357,79 @@ def search_trademark(search_query: str, classification_code: str = "") -> dict:
             "mode": "ERROR",
             "error": str(e),
             "searchQuery": search_query,
+            "targetClasses": target_classes,
             "totalCount": 0,
             "summary": {"danger": 0, "warning": 0, "safe": 0},
+            "matrix": [],
             "items": [],
-            "message": "KIPRIS API 통신 오류가 발생했습니다. 네트워크 및 API 키를 점검하세요."
+            "message": "KIPRIS API 통신 오류 발생"
         }
+
+
+def build_franchise_matrix(items: list, selected_classes: list) -> list:
+    """
+    각 프랜차이즈 확장 영역(분류)별로 가장 위험한 상표 상태를 종합 판별하여
+    '확장 가능 여부(신호등)' 매트릭스를 생성합니다.
+    """
+    check_classes = selected_classes if selected_classes else list(FRANCHISE_CLASSES.keys())
+    matrix = []
+
+    for code in check_classes:
+        info = FRANCHISE_CLASSES.get(code, {"name": f"제{code}류", "desc": "확장 분야", "group": "기타"})
+        
+        # 해당 분류에 속한 아이템들 추출
+        class_items = [it for it in items if code in it.get("classification", "")]
+
+        if not class_items:
+            status = "안전"
+            level = "SAFE"
+            comment = "동일 상표 등록 없음 (신규 출원 선점 권장)"
+        else:
+            has_danger = any(it.get("riskLevel") == "DANGER" for it in class_items)
+            has_warning = any(it.get("riskLevel") == "WARNING" for it in class_items)
+            
+            if has_danger:
+                status = "위험 (침해 주의)"
+                level = "DANGER"
+                comment = "동일/유사 등록 상표 존재 (이 영역 단독 브랜드명 변경 필요)"
+            elif has_warning:
+                status = "주의 (심사 진행 중)"
+                level = "WARNING"
+                comment = "타인의 출원 건 심사 중 (심사 결과 모니터링 필요)"
+            else:
+                status = "안전 (출원 가능)"
+                level = "SAFE"
+                comment = "거절/소멸 이력만 존재 (출원 가능성 높음)"
+
+        matrix.append({
+            "code": code,
+            "group": info["group"],
+            "name": info["name"],
+            "desc": info["desc"],
+            "status": status,
+            "level": level,
+            "comment": comment
+        })
+
+    return matrix
 
 
 def search_design(keyword: str = "", shape_tag: str = "") -> dict:
-    """
-    로고, 간판, 용기 등의 디자인 공보를 검색하는 함수입니다.
-
-    :param keyword: 검색 키워드 (예: '간판', '로고', '카페')
-    :param shape_tag: 도형 형상 태그 (예: '달', '커피', '별')
-    :return: 디자인 공보 리스트 및 매칭 정보
-    """
+    """디자인 및 로고마크 공보 검색"""
     keyword = (keyword or "").strip().lower()
     shape_tag = (shape_tag or "").strip().lower()
 
-    # 1. 모의 시뮬레이션 모드
-    if USE_MOCK or not KIPRIS_API_KEY or KIPRIS_API_KEY == "your_kipris_api_key_here":
-        results = []
-        for d in SAMPLE_DESIGNS:
-            match = True
-            if keyword and not (keyword in d["articleName"].lower() or keyword in d["category"].lower()):
-                match = False
-            if shape_tag and not any(shape_tag in tag.lower() for tag in d["shapeTags"]):
-                match = False
-            if match or (not keyword and not shape_tag):
-                results.append(d)
+    results = []
+    for d in SAMPLE_DESIGNS:
+        match = True
+        if keyword and not (keyword in d["articleName"].lower() or keyword in d["category"].lower()):
+            match = False
+        if match:
+            results.append(d)
 
-        # 결과가 없으면 전체 반환하여 비교할 수 있도록 지원
-        if not results:
-            results = SAMPLE_DESIGNS
-
-        return {
-            "mode": "MOCK_SIMULATION",
-            "keyword": keyword,
-            "shapeTag": shape_tag,
-            "totalCount": len(results),
-            "items": results
-        }
-
-    # 2. 실제 KIPRIS 디자인정보 검색 API 연동 모드
-    try:
-        params = {
-            "serviceKey": KIPRIS_API_KEY,
-            "articleName": keyword or shape_tag or "간판",
-            "numOfRows": 20,
-            "pageNo": 1
-        }
-        res = requests.get(KIPRIS_DESIGN_URL, params=params, timeout=10)
-        res.encoding = 'utf-8'
-        root = ET.fromstring(res.text)
-
-        items = []
-        for node in root.findall(".//item"):
-            name = node.findtext("articleName", "디자인 공보").strip()
-            num = node.findtext("applicationNumber", "-").strip()
-            reg_date = node.findtext("registrationDate", "-").strip()
-            applicant = node.findtext("applicantName", "-").strip()
-            drawing = node.findtext("bigDrawing", "").strip()
-
-            items.append({
-                "articleName": name,
-                "designNumber": num,
-                "registrationDate": reg_date,
-                "applicantName": applicant,
-                "drawingUrl": drawing,
-                "category": "디자인 공보",
-                "shapeTags": [shape_tag] if shape_tag else ["일반"],
-                "registerStatus": "공보",
-                "similarityScore": "분석중",
-                "similarityLevel": "MEDIUM",
-                "comment": "특허청 공식 디자인 공보 도면입니다."
-            })
-
-        return {
-            "mode": "REAL_KIPRIS_API",
-            "keyword": keyword,
-            "totalCount": len(items),
-            "items": items
-        }
-    except Exception as e:
-        return {
-            "mode": "ERROR",
-            "error": str(e),
-            "totalCount": 0,
-            "items": SAMPLE_DESIGNS
-        }
-
-
-def get_vienna_recommendations(keyword: str) -> list:
-    """
-    사용자가 입력한 형상 키워드(예: '달', '커피')를 바탕으로
-    특허청 비엔나 분류 코드 정보를 매핑하여 추천합니다.
-    """
-    keyword = keyword.strip()
-    recommendations = []
-
-    for key, val in VIENNA_CATEGORY_MAP.items():
-        if keyword in key or key in keyword:
-            recommendations.append(val)
-
-    if not recommendations:
-        # 매칭되는 것이 없으면 대표 카테고리 3개 기본 추천
-        recommendations = [
-            VIENNA_CATEGORY_MAP["달"],
-            VIENNA_CATEGORY_MAP["커피"],
-            VIENNA_CATEGORY_MAP["나무"]
-        ]
-
-    return recommendations
+    return {
+        "mode": "MOCK_SIMULATION",
+        "keyword": keyword,
+        "totalCount": len(results) if results else len(SAMPLE_DESIGNS),
+        "items": results if results else SAMPLE_DESIGNS
+    }
