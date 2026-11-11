@@ -186,16 +186,16 @@
                 <i data-lucide="external-link" class="w-3.5 h-3.5 shrink-0"></i>
               </a>
 
-              <!-- 3. 공정거래위원회 가맹사업 정보공개서 확인 (404 완벽 해결) -->
+              <!-- 3. 공정거래위원회 가맹사업 정보공개서 열람 상호 조회 -->
               <a 
                 id="btnFtcFranchiseLive" 
-                href="https://franchise.ftc.go.kr" 
+                href="https://franchise.ftc.go.kr/mnu/00013/program/userRqst/list.do" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 class="flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 text-xs font-bold transition shadow-xs"
               >
                 <span class="w-2 h-2 rounded-full bg-amber-600 shrink-0"></span>
-                <span>공정위 가맹본부 조회</span>
+                <span>공정위 정보공개서 상호 조회</span>
                 <i data-lucide="external-link" class="w-3.5 h-3.5 shrink-0"></i>
               </a>
             </div>
@@ -994,7 +994,7 @@
         if (naverBtn) naverBtn.href = "https://map.naver.com";
         if (kiprisBtn) kiprisBtn.href = "https://www.kipris.or.kr";
         if (kiprisVerifyBtn) kiprisVerifyBtn.href = "https://www.kipris.or.kr";
-        if (ftcBtn) ftcBtn.href = "https://franchise.ftc.go.kr";
+        if (ftcBtn) ftcBtn.href = "https://franchise.ftc.go.kr/mnu/00013/program/userRqst/list.do";
         if (coreBadge) {
           coreBadge.innerHTML = "브랜드명 입력 대기 중";
           coreBadge.className = "text-[11px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200";
@@ -1011,8 +1011,8 @@
       if (kiprisBtn) kiprisBtn.href = kiprisUrl;
       if (kiprisVerifyBtn) kiprisVerifyBtn.href = kiprisDirectUrl;
 
-      // 3. 공정거래위원회 가맹사업 정보공개서 링크 (404 완벽 해결 URL)
-      const ftcUrl = `https://search.naver.com/search.naver?query=${encodeURIComponent(query + ' 가맹본부 정보공개서')}`;
+      // 3. 공정거래위원회 공식 정보공개서 실시간 상호(영업표지) 검색 링크
+      const ftcUrl = `https://franchise.ftc.go.kr/mnu/00013/program/userRqst/list.do?column=brd&searchKeyword=${encodeURIComponent(query)}`;
       if (ftcBtn) ftcBtn.href = ftcUrl;
 
       // 요부 감지 배지 실시간 업데이트
