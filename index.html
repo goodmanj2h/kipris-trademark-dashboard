@@ -11,6 +11,11 @@
   <meta name="apple-mobile-web-app-title" content="KIPRIS상표">
   <meta name="theme-color" content="#4f46e5">
 
+  <!-- 브라우저 강력 캐시 방지 메타 태그 (스마트폰 즉시 최신 반영 보장) -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Lucide Icons CDN -->
@@ -143,6 +148,8 @@
                 id="searchQueryInput" 
                 value="" 
                 placeholder="예: 올리빈, 투썸플레이스, 가나안국수" 
+                autocomplete="off"
+                autocapitalize="none"
                 class="w-full pl-9 sm:pl-10 pr-4 py-2.5 sm:py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm font-semibold transition"
                 required
               />
@@ -1051,9 +1058,12 @@
       updateFolderBadge();
       
       const input = document.getElementById('searchQueryInput');
-      input.addEventListener('input', (e) => {
-        syncLiveLinks(e.target.value.trim());
-      });
+      if (input) {
+        input.value = ''; // 모바일 브라우저의 이전 세션 자동 복원 캐시 강제 무효화
+        input.addEventListener('input', (e) => {
+          syncLiveLinks(e.target.value.trim());
+        });
+      }
 
       if (userApiKey) {
         document.getElementById('userApiKeyInput').value = userApiKey;
