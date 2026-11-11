@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>KIPRIS 지식재산정보 상표·로고 검증 대시보드</title>
   
-  <!-- 모바일 웹앱 메타 태그 (홈 화면 추가 시 앱처럼 동작) -->
+  <!-- 모바일 웹앱 메타 태그 (스마트폰 홈 화면 추가 시 독립 앱으로 동작) -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="상표검증">
@@ -32,7 +32,7 @@
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased selection:bg-indigo-500 selection:text-white">
 
   <!-- ====================================================================
-       상단 네비게이션 헤더 (모바일 반응형)
+       상단 네비게이션 헤더
        ==================================================================== -->
   <header class="bg-white/95 backdrop-blur-md border-b border-slate-200 sticky top-0 z-40 shadow-xs">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -53,13 +53,18 @@
         </div>
       </div>
 
-      <!-- 우측 컨트롤 버튼들 (상태 뱃지 + 설정 모달 버튼 + 도움말) -->
+      <!-- 우측 컨트롤 버튼들 (상태 뱃지 + 설정 모달 + 진단서 복사/인쇄) -->
       <div class="flex items-center space-x-2">
         <!-- 실행 환경 상태 뱃지 -->
         <div id="statusBadge" class="flex items-center space-x-1.5 text-[11px] sm:text-xs px-2.5 sm:px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-medium">
           <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
           <span id="statusText">초기화 중...</span>
         </div>
+
+        <!-- 진단서 클립보드 복사 버튼 -->
+        <button onclick="copyDiagnosticReport()" class="p-2 text-slate-500 hover:text-indigo-600 hover:bg-slate-100 rounded-xl transition" title="진단 결과 요약 복사 (카톡/메모장 공유용)">
+          <i data-lucide="share-2" class="w-5 h-5"></i>
+        </button>
 
         <!-- 설정 모달 버튼 (API 키 직접 입력 지원) -->
         <button onclick="toggleConfigModal()" class="p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition" title="API 키 및 환경 설정">
@@ -343,19 +348,25 @@
     </section>
 
     <!-- ==================================================================
-         [탭 3] 마이폴더 (관심 보관함) 뷰
+         [탭 3] 마이폴더 (관심 보관함) 뷰 & 비교 분석표
          ================================================================== -->
     <section id="viewFolder" class="hidden space-y-6">
-      <div class="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between">
+      <div class="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h3 class="text-base sm:text-lg font-bold text-slate-900 mb-1">나의 관심 상표 보관함</h3>
           <p class="text-xs text-slate-500">
-            검토 중인 후보 가게명과 디자인들을 모아서 체계적으로 비교·분석하세요.
+            검토 중인 후보 가게명들을 담아두고 한눈에 나란히 비교 분석하세요.
           </p>
         </div>
-        <button onclick="clearMyFolder()" class="text-xs text-rose-600 hover:text-rose-700 font-bold px-3 py-1.5 rounded-lg border border-rose-200 hover:bg-rose-50 transition">
-          보관함 비우기
-        </button>
+        <div class="flex items-center gap-2">
+          <button onclick="toggleCompareModal()" class="text-xs text-indigo-600 hover:text-indigo-700 font-bold px-3 py-1.5 rounded-lg border border-indigo-200 bg-indigo-50/50 hover:bg-indigo-100 transition flex items-center gap-1.5">
+            <i data-lucide="columns-2" class="w-4 h-4"></i>
+            후보 상표 비교 분석표
+          </button>
+          <button onclick="clearMyFolder()" class="text-xs text-rose-600 hover:text-rose-700 font-bold px-3 py-1.5 rounded-lg border border-rose-200 hover:bg-rose-50 transition">
+            보관함 비우기
+          </button>
+        </div>
       </div>
 
       <!-- 보관함 리스트 -->
@@ -375,6 +386,59 @@
       <p class="text-slate-400">모바일 및 PC 모든 기기에서 24시간 상시 조회할 수 있도록 최적화되었습니다.</p>
     </div>
   </footer>
+
+  <!-- ====================================================================
+       상세 공보 팝업 모달
+       ==================================================================== -->
+  <div id="detailModal" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl sm:rounded-3xl max-w-lg w-full p-6 space-y-4 shadow-2xl overflow-y-auto max-h-[90vh]">
+      <div class="flex items-center justify-between border-b pb-3">
+        <h3 id="modalTitle" class="font-bold text-slate-900 text-base flex items-center gap-2">
+          상표 상세 정보
+        </h3>
+        <button onclick="toggleDetailModal()" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div id="modalBody" class="space-y-4 text-xs text-slate-600 leading-relaxed">
+        <!-- 자바스크립트로 렌더링 -->
+      </div>
+
+      <div class="pt-2">
+        <button onclick="toggleDetailModal()" class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition">
+          닫기
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================================================================
+       후보 상표 비교 분석 모달
+       ==================================================================== -->
+  <div id="compareModal" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl sm:rounded-3xl max-w-3xl w-full p-6 space-y-4 shadow-2xl overflow-y-auto max-h-[90vh]">
+      <div class="flex items-center justify-between border-b pb-3">
+        <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+          <i data-lucide="columns-2" class="w-5 h-5 text-indigo-600"></i>
+          후보 가게명 비교 분석표
+        </h3>
+        <button onclick="toggleCompareModal()" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div id="compareBody" class="overflow-x-auto">
+        <!-- 자바스크립트로 비교 테이블 생성 -->
+      </div>
+
+      <div class="pt-2">
+        <button onclick="toggleCompareModal()" class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition">
+          닫기
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- ====================================================================
        환경 설정 ⚙️ 모달 (API 키 입력 및 모드 전환)
@@ -422,10 +486,9 @@
 
   <!-- ====================================================================
        프론트엔드 핵심 제어 자바스크립트
-       (서버가 꺼져 있어도 스마트폰에서 100% 독립 실행되는 하이브리드 엔진)
        ==================================================================== -->
   <script>
-    // 내장 모의 상표 데이터 (서버가 없거나 오프라인/GitHub Pages 배포 시 자동 사용)
+    // 내장 모의 상표 데이터
     const MOCK_TRADEMARKS_DATA = [
       {
         title: "달빛카페 (MOONLIGHT CAFE)",
@@ -439,6 +502,8 @@
         bigDrawing: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=300&auto=format&fit=crop&q=80",
         viennaCode: "01.07.01",
         viennaDescription": "초승달 또는 반달",
+        designatedGoods": "커피전문점업, 디저트카페업, 테이크아웃커피점업, 제과점업",
+        agent: "특허법인 한빛 (담당변리사 홍길동)",
         riskLevel: "DANGER",
         riskReason: "동일 업종(제43류)에 이미 '등록'되어 있어 동일/유사 상호 사용 시 상표권 침해 소송 위험이 매우 높습니다."
       },
@@ -453,7 +518,9 @@
         applicantName: "홍길동 (개인사업자)",
         bigDrawing: "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=300&auto=format&fit=crop&q=80",
         viennaCode: "01.07.06",
-        viennaDescription: "달과 풍경",
+        viennaDescription": "달과 풍경",
+        designatedGoods": "단팥빵, 크루아상, 조각케이크, 쿠키, 식빵",
+        agent: "본인 직접 출원",
         riskLevel: "WARNING",
         riskReason": "현재 심사진행(출원) 중인 상표입니다. 등록 결정 시 향후 분쟁 소지가 있으니 주시해야 합니다."
       },
@@ -469,6 +536,8 @@
         bigDrawing: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=300&auto=format&fit=crop&q=80",
         viennaCode": "",
         viennaDescription": "문자만 존재",
+        designatedGoods": "한식점업, 백반전문점업",
+        agent: "대리인 없음",
         riskLevel: "SAFE",
         riskReason": "과거에 등록 거절된 이력이 있습니다. 독점 권리자가 존재하지 않으므로 사용 가능성이 비교적 높습니다."
       },
@@ -484,6 +553,8 @@
         bigDrawing: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=300&auto=format&fit=crop&q=80",
         viennaCode": "01.01.01",
         viennaDescription": "별, 항성",
+        designatedGoods": "원두커피전문점, 핸드드립전문점",
+        agent: "태평양특허법률사무소",
         riskLevel: "SAFE",
         riskReason": "과거 등록되었으나 갱신료 미납 등으로 권리가 소멸(말소)되었습니다. 현재 유효한 독점 권리는 없습니다."
       },
@@ -499,6 +570,8 @@
         bigDrawing: "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?w=300&auto=format&fit=crop&q=80",
         viennaCode": "03.09.01",
         viennaDescription": "어류, 물고기",
+        designatedGoods": "생선회전문식당업, 해산물요리전문점업",
+        agent: "특허법인 세종",
         riskLevel: "DANGER",
         riskReason": "동일 업종에 등록되어 권리자가 영업 중인 상표입니다."
       },
@@ -514,6 +587,8 @@
         bigDrawing: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=300&auto=format&fit=crop&q=80",
         viennaCode": "05.01.01",
         viennaDescription": "나무, 숲",
+        designatedGoods": "유기농빵집업, 숲카페업",
+        agent: "정진특허법률사무소",
         riskLevel: "DANGER",
         riskReason": "유효하게 등록된 상표입니다."
       }
@@ -571,6 +646,7 @@
     let myFolder = JSON.parse(localStorage.getItem('kipris_my_folder') || '[]');
     let userApiKey = localStorage.getItem('kipris_user_api_key') || '';
     let isServerMode = false;
+    let lastSearchSummary = null;
 
     // 1. 초기 로드
     window.addEventListener('DOMContentLoaded', async () => {
@@ -583,7 +659,7 @@
       performSearch('달빛카페', '43');
     });
 
-    // 2. 실행 환경 자동 감지 (백엔드 서버 vs 클라우드/스마트폰 정적 모드)
+    // 2. 실행 환경 자동 감지
     async function detectEnvironment() {
       const badge = document.getElementById('statusBadge');
       const text = document.getElementById('statusText');
@@ -597,9 +673,7 @@
           text.innerText = data.useMock ? "서버 시뮬레이션 모드" : "KIPRIS 실시간 연동";
           return;
         }
-      } catch (err) {
-        // 서버가 없는 환경(GitHub Pages, 모바일 오프라인)인 경우
-      }
+      } catch (err) {}
 
       isServerMode = false;
       badge.className = "flex items-center space-x-1.5 text-[11px] sm:text-xs px-2.5 sm:px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-medium";
@@ -623,18 +697,16 @@
 
       try {
         let data;
-
-        // 서버가 있으면 서버 API 호출, 없으면 브라우저 내장 엔진으로 즉각 분석
         if (isServerMode) {
           const url = `/api/search/trademark?query=${encodeURIComponent(query)}&class=${encodeURIComponent(classification)}`;
           const res = await fetch(url);
           data = await res.json();
         } else {
-          // 브라우저 내장 시뮬레이션 분석 엔진
           data = localAnalyzeTrademark(query, classification);
         }
 
         currentResults = data.items || [];
+        lastSearchSummary = { query, classification, ...data };
         updateSummaryWidget(data);
         renderResultsList(currentResults);
 
@@ -644,6 +716,7 @@
         console.warn("검색 오류 -> 내장 엔진으로 대체:", err);
         const fallback = localAnalyzeTrademark(query, classification);
         currentResults = fallback.items;
+        lastSearchSummary = { query, classification, ...fallback };
         updateSummaryWidget(fallback);
         renderResultsList(currentResults);
       } finally {
@@ -653,7 +726,6 @@
       }
     }
 
-    // 브라우저 내장 상표 분석 알고리즘
     function localAnalyzeTrademark(query, classification) {
       const qLower = query.toLowerCase();
       let matched = MOCK_TRADEMARKS_DATA.filter(item => {
@@ -672,6 +744,8 @@
           classification: classification ? `제${classification}류` : "분류 미지정",
           applicantName: "-",
           bigDrawing: "",
+          designatedGoods: "희망 업종 지정상품 신규 출원 가능",
+          agent: "-",
           riskLevel: "SAFE",
           riskReason: `'${query}'에 대한 동일 상표 등록 내역이 없습니다. 신규 출원 및 간판 사용 가능성이 매우 높습니다!`
         }];
@@ -760,13 +834,22 @@
                   </div>
                   <h5 class="text-base font-bold text-slate-900">${item.title}</h5>
                 </div>
-                <button 
-                  onclick="toggleBookmark(${index})" 
-                  class="p-2 rounded-xl border ${isBookmarked ? 'bg-rose-50 text-rose-600 border-rose-200' : 'bg-slate-50 text-slate-400 border-slate-200 hover:text-slate-600'} transition shrink-0"
-                  title="마이폴더에 보관"
-                >
-                  <i data-lucide="${isBookmarked ? 'heart' : 'bookmark'}" class="w-4 h-4"></i>
-                </button>
+                <div class="flex items-center gap-1.5 shrink-0">
+                  <button 
+                    onclick="openDetailModal(${index})" 
+                    class="p-2 rounded-xl border bg-slate-50 text-slate-500 border-slate-200 hover:text-indigo-600 hover:border-indigo-200 transition"
+                    title="상세 공보 보기"
+                  >
+                    <i data-lucide="info" class="w-4 h-4"></i>
+                  </button>
+                  <button 
+                    onclick="toggleBookmark(${index})" 
+                    class="p-2 rounded-xl border ${isBookmarked ? 'bg-rose-50 text-rose-600 border-rose-200' : 'bg-slate-50 text-slate-400 border-slate-200 hover:text-slate-600'} transition"
+                    title="마이폴더에 보관"
+                  >
+                    <i data-lucide="${isBookmarked ? 'heart' : 'bookmark'}" class="w-4 h-4"></i>
+                  </button>
+                </div>
               </div>
 
               <!-- 이미지 도면 및 세부 정보 -->
@@ -787,7 +870,7 @@
 
               <!-- 위험도 판별 설명 박스 -->
               <div class="p-3 bg-slate-50 rounded-xl text-xs text-slate-600 border border-slate-100 mt-2">
-                <strong class="text-slate-800">진단 요약:</strong> ${item.riskReason}
+                <strong class="text-slate-800">진단:</strong> ${item.riskReason}
               </div>
             </div>
           </div>
@@ -891,7 +974,7 @@
       }
     }
 
-    // 9. 로고 이미지 업로드 및 실시간 시뮬레이션
+    // 9. 로고 이미지 업로드
     function handleImageUpload(e) {
       const file = e.target.files[0];
       if (!file) return;
@@ -903,7 +986,6 @@
         preview.classList.remove('hidden');
         document.getElementById('uploadPreviewImg').src = event.target.result;
         
-        // 이미지 형태 감지 시뮬레이션
         document.getElementById('shapeKeywordInput').value = "초승달, 커피잔";
         handleShapeSearch();
       };
@@ -951,7 +1033,135 @@
       renderDesignLogos(filtered.length > 0 ? filtered : MOCK_DESIGN_DATA);
     }
 
-    // 10. API 키 설정 모달
+    // 10. 상표 상세 정보 모달
+    function openDetailModal(index) {
+      const item = currentResults[index];
+      if (!item) return;
+
+      document.getElementById('modalTitle').innerText = item.title;
+      const body = document.getElementById('modalBody');
+
+      body.innerHTML = `
+        <div class="space-y-3">
+          <div class="flex items-center gap-2">
+            <span class="px-2.5 py-0.5 rounded-full text-xs font-bold ${item.registerStatus.includes('등록') ? 'bg-rose-50 text-rose-700' : 'bg-amber-50 text-amber-700'}">
+              권리상태: ${item.registerStatus}
+            </span>
+            <span class="text-xs text-slate-500 font-bold">${item.classification}</span>
+          </div>
+
+          <!-- 타임라인 -->
+          <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-1.5 text-xs">
+            <div class="flex justify-between">
+              <span class="text-slate-500">출원일자:</span>
+              <span class="font-bold text-slate-800">${item.applicationDate}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-500">등록일자:</span>
+              <span class="font-bold text-slate-800">${item.registrationDate || '-'}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-500">출원인:</span>
+              <span class="font-bold text-slate-800">${item.applicantName || '-'}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-500">대리인:</span>
+              <span class="text-slate-700">${item.agent || '대리인 없음'}</span>
+            </div>
+          </div>
+
+          <div>
+            <span class="font-bold text-slate-800 block mb-1">지정상품 및 서비스:</span>
+            <p class="text-slate-600 bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-[11px]">
+              ${item.designatedGoods || '지정상품 정보 참조'}
+            </p>
+          </div>
+
+          <div class="p-3 bg-indigo-50/60 rounded-xl border border-indigo-100 text-xs text-indigo-900">
+            <strong>법적 조언:</strong> ${item.riskReason}
+          </div>
+        </div>
+      `;
+
+      toggleDetailModal();
+    }
+
+    function toggleDetailModal() {
+      document.getElementById('detailModal').classList.toggle('hidden');
+    }
+
+    // 11. 후보 상표 비교 분석표 모달
+    function toggleCompareModal() {
+      const modal = document.getElementById('compareModal');
+      modal.classList.toggle('hidden');
+      if (!modal.classList.contains('hidden')) {
+        renderCompareTable();
+      }
+    }
+
+    function renderCompareTable() {
+      const body = document.getElementById('compareBody');
+      if (myFolder.length === 0) {
+        body.innerHTML = `
+          <div class="text-center py-8 text-slate-400 text-xs">
+            보관함에 저장된 후보 상표가 없습니다. 검색 결과에서 상표를 북마크한 후 비교해 보세요.
+          </div>
+        `;
+        return;
+      }
+
+      body.innerHTML = `
+        <table class="w-full text-xs text-left border-collapse">
+          <thead>
+            <tr class="border-b border-slate-200 bg-slate-50">
+              <th class="p-3 font-bold text-slate-700">후보 상표명</th>
+              <th class="p-3 font-bold text-slate-700">권리상태</th>
+              <th class="p-3 font-bold text-slate-700">분류</th>
+              <th class="p-3 font-bold text-slate-700">안전성 판정</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${myFolder.map(item => `
+              <tr class="border-b border-slate-100 hover:bg-slate-50/50">
+                <td class="p-3 font-bold text-slate-900">${item.title}</td>
+                <td class="p-3">
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${item.registerStatus.includes('등록') ? 'bg-rose-50 text-rose-700' : 'bg-emerald-50 text-emerald-700'}">
+                    ${item.registerStatus}
+                  </span>
+                </td>
+                <td class="p-3 text-slate-600">${item.classification}</td>
+                <td class="p-3 text-slate-600">${item.riskReason}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    }
+
+    // 12. 진단 결과 요약 클립보드 복사
+    function copyDiagnosticReport() {
+      if (!lastSearchSummary) {
+        alert("검색을 먼저 실행해 주세요.");
+        return;
+      }
+      const text = `[KIPRIS 상표 사전 검증 진단 리포트]
+- 검증 상호명: ${lastSearchSummary.query}
+- 선택 업종: 제${lastSearchSummary.classification || '전체'}류
+- 위험(등록): ${lastSearchSummary.summary.danger}건
+- 주의(출원): ${lastSearchSummary.summary.warning}건
+- 안전(거절/미등록): ${lastSearchSummary.summary.safe}건
+- 최종 소견: ${document.getElementById('riskVerdictTitle').innerText}
+
+※ 본 검증은 특허청(KIPRIS) 데이터베이스를 기반으로 사전 진단되었습니다.`;
+
+      navigator.clipboard.writeText(text).then(() => {
+        alert("진단 결과 리포트가 클립보드에 복사되었습니다!\n카카오톡이나 메모장에 붙여넣어 공유하세요.");
+      }).catch(() => {
+        alert("복사 실패. 브라우저 권한을 확인하세요.");
+      });
+    }
+
+    // 13. 환경 설정 모달
     function toggleConfigModal() {
       document.getElementById('configModal').classList.toggle('hidden');
     }
@@ -966,4 +1176,3 @@
   </script>
 </body>
 </html>
-
