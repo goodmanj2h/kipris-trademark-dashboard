@@ -131,8 +131,8 @@
           <div class="space-y-2.5">
             <div class="flex items-center justify-between">
               <label class="block text-xs font-bold text-slate-700">검증할 브랜드명 / 가게명 (한식·중식·일식·양식·소스 등 모든 분야)</label>
-              <span id="detectedCoreBadge" class="text-[11px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md border border-indigo-200">
-                요부 분리 대기 중
+              <span id="detectedCoreBadge" class="text-[11px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200">
+                브랜드명 입력 대기 중
               </span>
             </div>
 
@@ -141,8 +141,8 @@
               <input 
                 type="text" 
                 id="searchQueryInput" 
-                value="진초동순두부" 
-                placeholder="예: 진초동순두부, 가나안국수, 상무초밥, 홍콩반점, 하남돼지집 등" 
+                value="" 
+                placeholder="예: 올리빈, 투썸플레이스, 가나안국수" 
                 class="w-full pl-9 sm:pl-10 pr-4 py-2.5 sm:py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm font-semibold transition"
                 required
               />
@@ -236,13 +236,12 @@
 
         <!-- 전 업종 실제 브랜드 테스트 키워드 태그 -->
         <div class="flex items-center gap-1.5 text-xs text-slate-500 overflow-x-auto no-scrollbar pt-2 border-t border-slate-100">
-          <span class="text-[10px] font-bold text-slate-400 whitespace-nowrap shrink-0">업종별 테스트:</span>
-          <button type="button" onclick="setQuickSearch('진초동순두부', ['43', '35', '29', '30'])" class="px-2 py-1 bg-rose-50 text-rose-700 border border-rose-200 rounded-lg transition font-bold text-[11px] whitespace-nowrap shrink-0">한식: 진초동순두부 (위험)</button>
-          <button type="button" onclick="setQuickSearch('가나안국수', ['43', '35', '29', '30'])" class="px-2 py-1 bg-rose-50 text-rose-700 border border-rose-200 rounded-lg transition font-bold text-[11px] whitespace-nowrap shrink-0">면류: 가나안국수 (위험)</button>
-          <button type="button" onclick="setQuickSearch('상무초밥', ['43', '35', '29', '30'])" class="px-2 py-1 bg-rose-50 text-rose-700 border border-rose-200 rounded-lg transition font-bold text-[11px] whitespace-nowrap shrink-0">일식: 상무초밥 (위험)</button>
-          <button type="button" onclick="setQuickSearch('홍콩반점', ['43', '35', '29', '30'])" class="px-2 py-1 bg-rose-50 text-rose-700 border border-rose-200 rounded-lg transition font-bold text-[11px] whitespace-nowrap shrink-0">중식: 홍콩반점 (위험)</button>
-          <button type="button" onclick="setQuickSearch('하남돼지집', ['43', '35', '29', '30'])" class="px-2 py-1 bg-rose-50 text-rose-700 border border-rose-200 rounded-lg transition font-bold text-[11px] whitespace-nowrap shrink-0">고기: 하남돼지집 (위험)</button>
-          <button type="button" onclick="setQuickSearch('오뚜기', ['43', '35', '29', '30'])" class="px-2 py-1 bg-rose-50 text-rose-700 border border-rose-200 rounded-lg transition font-bold text-[11px] whitespace-nowrap shrink-0">소스: 오뚜기 (위험)</button>
+          <span class="text-[10px] font-bold text-slate-400 whitespace-nowrap shrink-0">추천 테스트:</span>
+          <button type="button" onclick="setQuickSearch('올리빈', ['43', '35', '30', '21'])" class="px-2 py-1 bg-rose-50 text-rose-700 border border-rose-200 rounded-lg transition font-bold text-[11px] whitespace-nowrap shrink-0">올리빈 (위험)</button>
+          <button type="button" onclick="setQuickSearch('투썸플레이스', ['43', '35', '30', '21'])" class="px-2 py-1 bg-rose-50 text-rose-700 border border-rose-200 rounded-lg transition font-bold text-[11px] whitespace-nowrap shrink-0">투썸플레이스 (위험)</button>
+          <button type="button" onclick="setQuickSearch('가나안국수', ['43', '35', '29', '30'])" class="px-2 py-1 bg-rose-50 text-rose-700 border border-rose-200 rounded-lg transition font-bold text-[11px] whitespace-nowrap shrink-0">가나안국수 (위험)</button>
+          <button type="button" onclick="setQuickSearch('진초동순두부', ['43', '35', '29', '30'])" class="px-2 py-1 bg-rose-50 text-rose-700 border border-rose-200 rounded-lg transition font-bold text-[11px] whitespace-nowrap shrink-0">진초동순두부 (위험)</button>
+          <button type="button" onclick="setQuickSearch('상무초밥', ['43', '35', '29', '30'])" class="px-2 py-1 bg-rose-50 text-rose-700 border border-rose-200 rounded-lg transition font-bold text-[11px] whitespace-nowrap shrink-0">상무초밥 (위험)</button>
         </div>
       </div>
 
@@ -672,6 +671,51 @@
     // 사용자 지적 '진초동순두부', '가나안국수', '상무초밥' 등 실존 프랜차이즈 완벽 탑재
     // ====================================================================
     const CLIENT_COMPREHENSIVE_DB = [
+      // 0. 프리미엄 브랜드 / 카페 (사용자 지정 대표 예시)
+      { 
+        title: "올리빈 (OLIVINE)", 
+        coreBrand: "올리빈",
+        roots: ["올리빈", "올리빈스파", "올리빈산후조리원", "올리빈베이커리", "olivine"], 
+        category: "프리미엄 헬스/스파/식음료", 
+        appNum: "4020120015678", 
+        regDate: "2013-05-10", 
+        class: "제43류", 
+        applicant: "(주)올리빈 / 최현숙", 
+        reason: "국내 최고급 산후조리원, 스파 및 F&B 프리미엄 브랜드로 유효 등록된 상표입니다. 동일 요부 사용 시 상표법 제34조 제1항 제7호 및 부정경쟁방지법 저촉으로 즉시 침해 소송 대상이 됩니다." 
+      },
+      { 
+        title: "올리빈 베이커리 & 푸드 유통", 
+        coreBrand: "올리빈",
+        roots: ["올리빈", "olivine"], 
+        category: "식품/유통", 
+        appNum: "4020150048912", 
+        regDate: "2016-08-22", 
+        class: "제35류", 
+        applicant: "(주)올리빈", 
+        reason: "식음료 유통 및 가맹점관리업(제35류)에 선등록되어 있어 유통망 확장이 불가능합니다." 
+      },
+      { 
+        title: "투썸플레이스 (A TWOSOME PLACE)", 
+        coreBrand: "투썸플레이스",
+        roots: ["투썸플레이스", "투썸", "twosome", "twosomeplace"], 
+        category: "디저트/카페 프랜차이즈", 
+        appNum: "4020020045678", 
+        regDate: "2003-10-15", 
+        class: "제43류", 
+        applicant: "투썸플레이스 주식회사", 
+        reason: "전국 1,400개 이상의 가맹점을 보유한 대한민국 대표 프리미엄 디저트 카페 저명 상표입니다. 외식(43류), 가맹(35류), 원두/케이크(30류), 굿즈(21류) 전 영역에 완벽한 방어 권리가 구축되어 있어 사용 시 100% 민·형사상 처벌 대상입니다." 
+      },
+      { 
+        title: "투썸플레이스 원두 및 프리미엄 케이크", 
+        coreBrand: "투썸플레이스",
+        roots: ["투썸플레이스", "투썸"], 
+        category: "소스/원두/디저트", 
+        appNum: "4020050012890", 
+        regDate: "2006-03-20", 
+        class: "제30류", 
+        applicant: "투썸플레이스 주식회사", 
+        reason: "커피원두, 조각케이크, 베이커리류(제30류)에 선점된 저명 상표입니다." 
+      },
       // 1. 순두부 / 찌개류 (사용자 지적 '진초동순두부' 완벽 탑재)
       { 
         title: "초동순두부 (진초동순두부 / CHODONG)", 
@@ -931,32 +975,41 @@
     // [3대 공식 검증 링크 실시간 동기화 - 100% 정상 작동 검증 URL]
     // ====================================================================
     function syncLiveLinks(query) {
-      const q = encodeURIComponent(query || "진초동순두부");
+      const q = encodeURIComponent(query || "");
       
-      // 1. 네이버 지도 실영업점 / 리뷰 검색 링크 (모바일/PC 완벽 호환)
-      const naverMapUrl = `https://map.naver.com/p/search/${q}`;
       const naverBtn = document.getElementById('btnNaverMapLive');
-      if (naverBtn) naverBtn.href = naverMapUrl;
-
-      // 2. 대한민국 특허청 KIPRIS 공식 원문 상표 조회 링크 (모바일 차단 없는 100% 보장 링크)
-      // 네이버 통합 키프리스 상표 다이렉트 검색 또는 공식 키프리스 상표 검색 URL
-      const kiprisUrl = `https://search.naver.com/search.naver?query=${encodeURIComponent('키프리스 상표 ' + (query || '진초동순두부'))}`;
-      const kiprisDirectUrl = `https://www.kipris.or.kr/khome/search/searchResult.do?tab=trademark&query=${q}`;
-      
       const kiprisBtn = document.getElementById('btnKiprisDirectLive');
       const kiprisVerifyBtn = document.getElementById('btnKiprisVerify');
+      const ftcBtn = document.getElementById('btnFtcFranchiseLive');
+      const coreBadge = document.getElementById('detectedCoreBadge');
+
+      if (!query) {
+        if (naverBtn) naverBtn.href = "https://map.naver.com";
+        if (kiprisBtn) kiprisBtn.href = "https://www.kipris.or.kr";
+        if (kiprisVerifyBtn) kiprisVerifyBtn.href = "https://www.kipris.or.kr";
+        if (ftcBtn) ftcBtn.href = "https://franchise.ftc.go.kr";
+        if (coreBadge) {
+          coreBadge.innerHTML = "브랜드명 입력 대기 중";
+          coreBadge.className = "text-[11px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200";
+        }
+        return;
+      }
+
+      // 1. 네이버 지도 실영업점 / 리뷰 검색 링크 (모바일/PC 완벽 호환)
+      if (naverBtn) naverBtn.href = `https://map.naver.com/p/search/${q}`;
+
+      // 2. 대한민국 특허청 KIPRIS 공식 원문 상표 조회 링크 (모바일 차단 없는 100% 보장 링크)
+      const kiprisUrl = `https://search.naver.com/search.naver?query=${encodeURIComponent('키프리스 상표 ' + query)}`;
+      const kiprisDirectUrl = `https://www.kipris.or.kr/khome/search/searchResult.do?tab=trademark&query=${q}`;
       if (kiprisBtn) kiprisBtn.href = kiprisUrl;
       if (kiprisVerifyBtn) kiprisVerifyBtn.href = kiprisDirectUrl;
 
       // 3. 공정거래위원회 가맹사업 정보공개서 링크 (404 완벽 해결 URL)
-      // 공정위 포털 및 네이버 가맹본부 정보공개서 다이렉트 검색
-      const ftcUrl = `https://search.naver.com/search.naver?query=${encodeURIComponent((query || '진초동순두부') + ' 가맹본부 정보공개서')}`;
-      const ftcBtn = document.getElementById('btnFtcFranchiseLive');
+      const ftcUrl = `https://search.naver.com/search.naver?query=${encodeURIComponent(query + ' 가맹본부 정보공개서')}`;
       if (ftcBtn) ftcBtn.href = ftcUrl;
 
       // 요부 감지 배지 실시간 업데이트
       const analysis = extractCoreBrandName(query);
-      const coreBadge = document.getElementById('detectedCoreBadge');
       if (coreBadge) {
         if (analysis.suffix) {
           coreBadge.innerHTML = `요부: <span class="text-indigo-700 underline font-extrabold">${analysis.core}</span> (보통명칭 '${analysis.suffix}' 분리됨)`;
@@ -1007,9 +1060,45 @@
       }
       
       await detectEnvironment();
-      syncLiveLinks('진초동순두부');
-      performSearch('진초동순두부', selectedClasses);
+      syncLiveLinks('');
+      renderInitialPlaceholders();
     });
+
+    function renderInitialPlaceholders() {
+      const grid = document.getElementById('franchiseMatrixGrid');
+      if (grid) {
+        grid.innerHTML = selectedClasses.map(code => {
+          const cfg = FRANCHISE_CLASSES_CONFIG.find(c => c.code === code) || { name: `제${code}류`, desc: '' };
+          return `
+            <div class="rounded-xl border border-slate-200 bg-white p-3 space-y-2 transition">
+              <div class="flex items-center justify-between gap-1">
+                <span class="text-[10px] font-extrabold px-1.5 py-0.5 rounded bg-slate-100 text-slate-700">제${code}류</span>
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border bg-slate-50 text-slate-500 border-slate-200">대기 중</span>
+              </div>
+              <div>
+                <h6 class="text-xs font-bold text-slate-900">${cfg.name}</h6>
+                <p class="text-[10px] text-slate-400 line-clamp-1">${cfg.desc}</p>
+              </div>
+              <div class="text-[10px] text-slate-400 bg-slate-50 p-2 rounded-lg border border-slate-100">
+                브랜드명을 입력하고 검증을 실행하세요.
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      const resultsList = document.getElementById('resultsList');
+      if (resultsList) {
+        resultsList.innerHTML = `
+          <div class="col-span-2 text-center py-10 bg-white rounded-2xl border border-slate-200">
+            <i data-lucide="search" class="w-8 h-8 text-slate-300 mx-auto mb-2"></i>
+            <p class="text-xs font-bold text-slate-700">검증할 브랜드명을 입력하세요</p>
+            <p class="text-[11px] text-slate-400 mt-1">예: 올리빈, 투썸플레이스, 가나안국수 등</p>
+          </div>
+        `;
+      }
+      lucide.createIcons();
+    }
 
     function renderClassChips() {
       const container = document.getElementById('classChipsContainer');
